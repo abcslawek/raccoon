@@ -27,17 +27,16 @@ public class Player {
     }
 
     public void move(int dx, int dy){
-        this.x = dx;
-        this.y = dy;
+        this.x += dx;
+        this.y += dy;
     }
 
     public void move_left(int vel){
-        this.xVel = -vel;
+        this.xVel = -1 * vel;
         if(!this.direction.equals("left")){
             this.direction = "left";
             this.animationCount = 0;
         }
-
     }
 
     public void move_right(int vel){

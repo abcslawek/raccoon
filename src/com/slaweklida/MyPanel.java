@@ -14,27 +14,29 @@ public class MyPanel extends JPanel implements ActionListener {
     Image enemy;
     Image backgroundImage;
     Timer timer;
-    int xVelocity = 1;
-    int yVelocity = 1;
-    int x = 0;
-    int y = 0;
+    //int xVelocity = 1;
+    //int yVelocity = 1;
+    //int x = 0;
+    //int y = 0;
     Player player;
 
     public MyPanel() {
         image = new ImageIcon("src/imgs/backgroundGrey.png").getImage();
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-        //this.setBackground(Color.blue);
-        enemy = new ImageIcon("src/imgs/raccoon.png").getImage();
-        timer = new Timer(10, this);
+
+        //enemy = new ImageIcon("src/imgs/raccoon.png").getImage(); //szopek
+
+        timer = new Timer(50, this);
         timer.start();
 
         player = new Player(100, 100, 50, 50);
     }
 
     public void paint(Graphics g){
-        super.paint(g); //paint background
-
+        super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
+
+        //tło
         for(int i = 0; i < PANEL_WIDTH; i = i + 100){
             for(int j = 0; j < PANEL_HEIGHT; j = j + 100){
                 g2D.drawImage(image, i , j,null);
@@ -42,23 +44,24 @@ public class MyPanel extends JPanel implements ActionListener {
         }
 
         //szopek
-        g2D.drawImage(this.enemy, this.x, this.y, null);
+        //g2D.drawImage(this.enemy, this.x, this.y, null);
 
         //czerwony kwadrat
-        g2D.setPaint(player.getColor());
-        g2D.fillRect(player.getX(), player.getY(), player.getWidth(), player.getHeight());
+        g2D.setPaint(this.player.getColor());
+        g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
 
     }
 
     //getter
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        this.x = this.x + xVelocity;
-        repaint(); //ponowne narysowanie
+        this.player.loop(60);
+        this.player.setxVel(0);
+        repaint(); //ciągłe rysowanie nowych klatek - musi być!
     }
 
 

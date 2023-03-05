@@ -15,11 +15,8 @@ public class MyFrame extends JFrame implements KeyListener {
         this.add(panel);
         this.pack();
         this.setLocationRelativeTo(null);
-
         this.addKeyListener(this);
-
         this.setVisible(true);
-
     }
 
     public MyPanel getPanel() {
@@ -28,11 +25,14 @@ public class MyFrame extends JFrame implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-        this.panel.getPlayer().setxVel(0);
+        //this.panel.getPlayer().setxVel(0);
         switch (e.getKeyChar()){
-            case 'a': this.panel.getPlayer().move_left(10);
-            case 'd': this.panel.getPlayer().move_right(10);
+                case 'a': this.panel.getPlayer().move_left(20);
+            break;
+                case 'd': this.panel.getPlayer().move_right(20);
+            break;
         }
+
     }
 
     @Override
