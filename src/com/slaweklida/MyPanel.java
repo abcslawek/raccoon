@@ -24,15 +24,17 @@ public class MyPanel extends JPanel implements ActionListener {
         image = new ImageIcon("src/imgs/backgroundGrey.png").getImage();
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
 
-        //enemy = new ImageIcon("src/imgs/raccoon.png").getImage(); //szopek
+        //szopek
+        //enemy = new ImageIcon("src/imgs/raccoon.png").getImage();
 
-        timer = new Timer(50, this);
+        timer = new Timer(17, this);
         timer.start();
 
         player = new Player(100, 100, 50, 50);
     }
 
     public void paint(Graphics g){
+        //must have
         super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
 
@@ -52,19 +54,17 @@ public class MyPanel extends JPanel implements ActionListener {
 
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        this.player.loop(60);
+        this.player.setxVel(0); //kwadrat nie porusza się ciągle w jedną stronę
+        repaint(); //ciągłe rysowanie nowych klatek - musi być!
+    }
+
     //getter
     public Player getPlayer() {
         return this.player;
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        this.player.loop(60);
-        this.player.setxVel(0);
-        repaint(); //ciągłe rysowanie nowych klatek - musi być!
-    }
-
-
 }
 
 //g2D.setPaint(Color.blue);

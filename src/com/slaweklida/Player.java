@@ -11,8 +11,10 @@ public class Player {
     private int xVel;
     private int yVel;
     private Graphics2D g2D;
-    private String direction = "";
+    private String direction;
     private int animationCount;
+    final private int GRAVITY = 1;
+    private int fallCount;
 
 
     public Player(int x, int y, int width, int height) {
@@ -23,7 +25,9 @@ public class Player {
 
         this.xVel = 0;
         this.yVel = 0;
+        this.direction = "left";
         this.animationCount = 0;
+        this.fallCount = 0;
     }
 
     public void move(int dx, int dy){
@@ -48,7 +52,10 @@ public class Player {
     }
 
     public void loop(int fps){
+        this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
         move(this.xVel, this.yVel);
+
+        this.fallCount += 1;
     }
 
     //getters and setters
