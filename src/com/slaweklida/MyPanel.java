@@ -1,9 +1,12 @@
 package com.slaweklida;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class MyPanel extends JPanel implements ActionListener {
 
@@ -19,6 +22,7 @@ public class MyPanel extends JPanel implements ActionListener {
     //int x = 0;
     //int y = 0;
     Player player;
+    private BufferedImage heroImage;
 
     public MyPanel() {
         image = new ImageIcon("src/imgs/backgroundGrey.png").getImage();
@@ -26,6 +30,13 @@ public class MyPanel extends JPanel implements ActionListener {
 
         //szopek
         //enemy = new ImageIcon("src/imgs/raccoon.png").getImage();
+
+        //bohater
+        try {
+            heroImage = ImageIO.read(getClass().getResource("Dude_Monster_Idle_4.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         timer = new Timer(17, this);
         timer.start();
@@ -51,6 +62,10 @@ public class MyPanel extends JPanel implements ActionListener {
         //czerwony kwadrat
         g2D.setPaint(this.player.getColor());
         g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
+
+        //bohater
+        BufferedImage subimage = this.heroImage.getSubimage(0,0,32,32);
+        g2D.drawImage(subimage, 0, 0, 32, 32, null);
 
     }
 
