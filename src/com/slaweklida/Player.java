@@ -7,21 +7,23 @@ public class Player {
     private int y;
     private int width;
     private int height;
+    private String heroName;
     private Color color = new Color(255, 0, 0);
     private int xVel;
     private int yVel;
     private Graphics2D g2D;
-    private String direction;
+    private String direction = "";
     private int animationCount;
     final private int GRAVITY = 1;
     private int fallCount;
 
 
-    public Player(int x, int y, int width, int height) {
+    public Player(int x, int y, int width, int height, String heroName) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.heroName = heroName;
 
         this.xVel = 0;
         this.yVel = 0;
@@ -41,6 +43,7 @@ public class Player {
             this.direction = "left";
             this.animationCount = 0;
         }
+        System.out.println("this.direction: " + this.direction);
     }
 
     public void move_right(int vel){
@@ -49,6 +52,7 @@ public class Player {
             this.direction = "right";
             this.animationCount = 0;
         }
+        System.out.println("this.direction: " + this.direction);
     }
 
     public void loop(int fps){
@@ -77,6 +81,18 @@ public class Player {
 
     public Color getColor() {
         return color;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public int getxVel() {
+        return xVel;
+    }
+
+    public int getyVel() {
+        return yVel;
     }
 
     public void setxVel(int xVel) {

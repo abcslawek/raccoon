@@ -5,69 +5,58 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class MyPanel extends JPanel implements ActionListener {
 
-    Image image;
-
+    private Image backgroundImage;
     final int PANEL_WIDTH = 1920;
     final int PANEL_HEIGHT = 1080;
-    Image enemy;
-    Image backgroundImage;
-    Timer timer;
-    //int xVelocity = 1;
-    //int yVelocity = 1;
-    //int x = 0;
-    //int y = 0;
-    Player player;
+    private Timer timer;
+    private Player player;
     private BufferedImage heroImage;
+    private String heroName = "3_Dude_Monster";
+    private String heroSheet = "idle.png";
+    private ArrayList<BufferedImage[]> sprites;
 
     public MyPanel() {
-        image = new ImageIcon("src/imgs/backgroundGrey.png").getImage();
+        backgroundImage = new ImageIcon("src/com.slaweklida.imgs/backgroundGrey.png").getImage();
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-
-        //szopek
-        //enemy = new ImageIcon("src/imgs/raccoon.png").getImage();
-
-        //bohater
-        try {
-            heroImage = ImageIO.read(getClass().getResource("Dude_Monster_Idle_4.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         timer = new Timer(17, this);
         timer.start();
 
-        player = new Player(100, 100, 50, 50);
+        player = new Player(100, 100, 32, 32, heroName);
     }
 
-    public void paint(Graphics g){
+    public void paint(Graphics g) {
         //must have
         super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
 
         //tło
-        for(int i = 0; i < PANEL_WIDTH; i = i + 100){
-            for(int j = 0; j < PANEL_HEIGHT; j = j + 100){
-                g2D.drawImage(image, i , j,null);
+        for (int i = 0; i < PANEL_WIDTH; i = i + 100) {
+            for (int j = 0; j < PANEL_HEIGHT; j = j + 100) {
+                g2D.drawImage(backgroundImage, i, j, null);
             }
         }
-
-        //szopek
-        //g2D.drawImage(this.enemy, this.x, this.y, null);
 
         //czerwony kwadrat
         g2D.setPaint(this.player.getColor());
         g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
 
         //bohater
-        BufferedImage subimage = this.heroImage.getSubimage(0,0,32,32);
-        g2D.drawImage(subimage, 0, 0, 32, 32, null);
+        sprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.player.getDirection());
+        g2D.drawImage(sprites.get(8)[0], this.player.getX(), 0, null);
 
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -75,6 +64,51 @@ public class MyPanel extends JPanel implements ActionListener {
         this.player.setxVel(0); //kwadrat nie porusza się ciągle w jedną stronę
         repaint(); //ciągłe rysowanie nowych klatek - musi być!
     }
+
+    public BufferedImage[] flip(BufferedImage[] sprites) {
+        for (int i = 0; i < sprites.length; i++) {
+            BufferedImage sprite = sprites[i];
+            AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+            tx.translate(-sprite.getWidth(null), 0);
+            AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+            sprites[i] = op.filter(sprite, null);
+        }
+        return sprites;
+    }
+
+    public BufferedImage flipSingleImage(BufferedImage sprite) {
+        AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+        tx.translate(-sprite.getWidth(null), 0);
+        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+        sprite = op.filter(sprite, null);
+        return sprite;
+    }
+
+    public ArrayList<BufferedImage[]> loadSpriteSheets(String dir1, String dir2, int width, int height, String direction) {
+        BufferedImage image = null;
+        BufferedImage[] subimages = new BufferedImage[0];
+        ArrayList<BufferedImage[]> allSprites = new ArrayList<>();
+        File folder = new File("src/com/slaweklida/imgs/" + dir1 + "/" + dir2);
+        File[] files = folder.listFiles();
+        for (File file : files) {
+            try {
+                image = ImageIO.read(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            int amountOfSubimages = image.getWidth() / this.player.getWidth();
+            subimages = new BufferedImage[amountOfSubimages];
+            for (int i = 0; i < amountOfSubimages; i++) {
+                subimages[i] = image.getSubimage(i * this.player.getWidth(), 0, this.player.getWidth(), this.player.getHeight());
+            }
+            if (direction.equals("left")) {
+                subimages = flip(subimages);
+            }
+            allSprites.add(subimages);
+        }
+        return allSprites;
+    }
+
 
     //getter
     public Player getPlayer() {
