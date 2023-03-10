@@ -27,9 +27,9 @@ public class MyFrame extends JFrame implements KeyListener {
     public void keyTyped(KeyEvent e) {
         //this.panel.getPlayer().setxVel(0);
         switch (e.getKeyChar()){
-                case 'a': this.panel.getPlayer().move_left(10);
+                case 'a': this.panel.getPlayer().move_left(5);
             break;
-                case 'd': this.panel.getPlayer().move_right(10);
+                case 'd': this.panel.getPlayer().move_right(5);
             break;
         }
 

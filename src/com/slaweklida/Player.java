@@ -1,6 +1,7 @@
 package com.slaweklida;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Player {
     private int x;
@@ -14,8 +15,11 @@ public class Player {
     private Graphics2D g2D;
     private String direction = "";
     private int animationCount;
+    private int animationDelay = 10;
     final private int GRAVITY = 1;
     private int fallCount;
+    private int spriteSheet = 8;
+    private int spriteIndex = 0;
 
 
     public Player(int x, int y, int width, int height, String heroName) {
@@ -43,7 +47,6 @@ public class Player {
             this.direction = "left";
             this.animationCount = 0;
         }
-        System.out.println("this.direction: " + this.direction);
     }
 
     public void move_right(int vel){
@@ -52,7 +55,6 @@ public class Player {
             this.direction = "right";
             this.animationCount = 0;
         }
-        System.out.println("this.direction: " + this.direction);
     }
 
     public void loop(int fps){
@@ -62,7 +64,24 @@ public class Player {
         this.fallCount += 1;
     }
 
+    public void updateSprite(){
+        this.spriteSheet = 8;
+        if(this.xVel != 0) this.spriteSheet = 13;
+    }
+
+    public int currentIndexOfSprite(BufferedImage[] sprites){
+        this.spriteIndex = (this.animationCount / this.animationDelay) % sprites.length;
+        this.animationCount += 1;
+        return this.spriteIndex;
+    }
+
     //getters and setters
+
+
+    public int getSpriteSheet() {
+        return spriteSheet;
+    }
+
     public int getX() {
         return x;
     }

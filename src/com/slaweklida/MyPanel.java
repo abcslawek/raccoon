@@ -11,7 +11,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class MyPanel extends JPanel implements ActionListener {
 
@@ -53,7 +52,7 @@ public class MyPanel extends JPanel implements ActionListener {
 
         //bohater
         sprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.player.getDirection());
-        g2D.drawImage(sprites.get(8)[0], this.player.getX(), 0, null);
+        g2D.drawImage(sprites.get(this.player.getSpriteSheet())[this.player.currentIndexOfSprite(sprites.get(this.player.getSpriteSheet()))], this.player.getX(), 100, null);
 
     }
 
