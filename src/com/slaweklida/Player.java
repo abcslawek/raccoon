@@ -8,26 +8,26 @@ public class Player {
     private int y;
     private int width;
     private int height;
-    private String heroName;
-    private Color color = new Color(255, 0, 0);
+    private final Color color = new Color(255, 0, 0);
     private int xVel;
     private int yVel;
     private Graphics2D g2D;
     private String direction = "";
     private int animationCount;
-    private int animationDelay = 10;
+    private final int animationDelay = 2;
     final private int GRAVITY = 1;
     private int fallCount;
-    private int spriteSheet = 8;
-    private int spriteIndex = 0;
+    private String spriteSheet = "idle.png";
+    private int spriteIndex;
+    private BufferedImage[] sprites;
+    private BufferedImage sprite;
+    private boolean isRunning = false;
 
-
-    public Player(int x, int y, int width, int height, String heroName) {
+    public Player(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.heroName = heroName;
 
         this.xVel = 0;
         this.yVel = 0;
@@ -58,25 +58,39 @@ public class Player {
     }
 
     public void loop(int fps){
-        this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
         move(this.xVel, this.yVel);
-
+        this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
         this.fallCount += 1;
+        updateSprite();
     }
 
     public void updateSprite(){
-        this.spriteSheet = 8;
-        if(this.xVel != 0) this.spriteSheet = 13;
-    }
-
-    public int currentIndexOfSprite(BufferedImage[] sprites){
-        this.spriteIndex = (this.animationCount / this.animationDelay) % sprites.length;
+        this.spriteSheet = "idle.png";
+        if(this.xVel != 0 && this.isRunning)
+            this.spriteSheet = "run.png";
+        this.spriteIndex = (this.animationCount / this.animationDelay) % this.sprites.length;
+        this.sprite = this.sprites[this.spriteIndex];
         this.animationCount += 1;
-        return this.spriteIndex;
     }
 
     //getters and setters
-    public int getSpriteSheet() {
+    public BufferedImage getSprite() {
+        return sprite;
+    }
+
+    public void setSprite(BufferedImage sprite) {
+        this.sprite = sprite;
+    }
+
+    public int getSpriteIndex() {
+        return spriteIndex;
+    }
+
+    public void setSpriteIndex(int spriteIndex) {
+        this.spriteIndex = spriteIndex;
+    }
+
+    public String getSpriteSheet() {
         return spriteSheet;
     }
 
@@ -118,5 +132,29 @@ public class Player {
 
     public void setyVel(int yVel) {
         this.yVel = yVel;
+    }
+
+    public void setSprites(BufferedImage[] sprites) {
+        this.sprites = sprites;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setRunning(boolean running) {
+        isRunning = running;
+    }
+
+    public void setSpriteSheet(String spriteSheet) {
+        this.spriteSheet = spriteSheet;
+    }
+
+    public BufferedImage[] getSprites() {
+        return sprites;
+    }
+
+    public int getAnimationCount() {
+        return animationCount;
     }
 }

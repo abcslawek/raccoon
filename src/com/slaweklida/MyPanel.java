@@ -10,7 +10,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MyPanel extends JPanel implements ActionListener {
 
@@ -19,31 +19,26 @@ public class MyPanel extends JPanel implements ActionListener {
     final int PANEL_HEIGHT = 1080;
     private Timer timer;
     private Player player;
-    private BufferedImage heroImage;
-    private String heroName = "3_Dude_Monster";
-    private String heroSheet = "idle.png";
-    private ArrayList<BufferedImage[]> sprites;
+    private HashMap<String, BufferedImage[]> sprites;
 
     public MyPanel() {
-        backgroundImage = new ImageIcon("src/com.slaweklida.imgs/backgroundGrey.png").getImage();
+        this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-
-        timer = new Timer(17, this);
-        timer.start();
-
-        player = new Player(100, 100, 32, 32, heroName);
+        this.timer = new Timer(60, this); //17
+        this.timer.start();
+        this.player = new Player(100, 100, 32, 32);
     }
 
     public void paint(Graphics g) {
         //must have
         super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
-        g2D.scale(2, 2);
+        g2D.scale(3, 3);
 
         //tło
         for (int i = 0; i < PANEL_WIDTH; i = i + 100) {
             for (int j = 0; j < PANEL_HEIGHT; j = j + 100) {
-                g2D.drawImage(backgroundImage, i, j, null);
+                g2D.drawImage(this.backgroundImage, i, j, null);
             }
         }
 
@@ -52,16 +47,17 @@ public class MyPanel extends JPanel implements ActionListener {
         g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
 
         //bohater
-        sprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.player.getDirection());
-        g2D.drawImage(sprites.get(this.player.getSpriteSheet())[this.player.currentIndexOfSprite(sprites.get(this.player.getSpriteSheet()))], this.player.getX(), 100, null);
-
+        g2D.drawImage(this.player.getSprite(), this.player.getX(), 100, null);
+        //System.out.println(this.player.getSpriteSheet() + ": " + this.player.getSpriteIndex());
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        //loading sprites to player
+        this.sprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.player.getDirection());
+        this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
+
         this.player.loop(60);
-        this.player.setxVel(0); //kwadrat nie porusza się ciągle w jedną stronę
         repaint(); //ciągłe rysowanie nowych klatek - musi być!
     }
 
@@ -84,10 +80,10 @@ public class MyPanel extends JPanel implements ActionListener {
         return sprite;
     }
 
-    public ArrayList<BufferedImage[]> loadSpriteSheets(String dir1, String dir2, int width, int height, String direction) {
+    public HashMap<String, BufferedImage[]> loadSpriteSheets(String dir1, String dir2, int width, int height, String direction) {
         BufferedImage image = null;
         BufferedImage[] subimages = new BufferedImage[0];
-        ArrayList<BufferedImage[]> allSprites = new ArrayList<>();
+        HashMap<String, BufferedImage[]> allSprites = new HashMap<>();
         File folder = new File("src/com/slaweklida/imgs/" + dir1 + "/" + dir2);
         File[] files = folder.listFiles();
         for (File file : files) {
@@ -104,7 +100,7 @@ public class MyPanel extends JPanel implements ActionListener {
             if (direction.equals("left")) {
                 subimages = flip(subimages);
             }
-            allSprites.add(subimages);
+            allSprites.put(file.getName(), subimages);
         }
         return allSprites;
     }
