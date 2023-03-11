@@ -38,6 +38,7 @@ public class MyPanel extends JPanel implements ActionListener {
         //must have
         super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
+        g2D.scale(2, 2);
 
         //tło
         for (int i = 0; i < PANEL_WIDTH; i = i + 100) {

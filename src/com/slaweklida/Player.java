@@ -76,8 +76,6 @@ public class Player {
     }
 
     //getters and setters
-
-
     public int getSpriteSheet() {
         return spriteSheet;
     }
