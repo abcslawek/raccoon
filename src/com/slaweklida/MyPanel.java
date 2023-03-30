@@ -19,6 +19,7 @@ public class MyPanel extends JPanel implements ActionListener {
     final int PANEL_HEIGHT = 1080;
     private Timer timer;
     private Player player;
+    private Block block;
     private HashMap<String, BufferedImage[]> sprites;
 
     public MyPanel() {
@@ -27,13 +28,14 @@ public class MyPanel extends JPanel implements ActionListener {
         this.timer = new Timer(60, this); //17
         this.timer.start();
         this.player = new Player(100, 100, 32, 32);
+        this.block = new Block (100, 200, 100, 100, "blockImage");
     }
 
     public void paint(Graphics g) {
         //must have
         super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
-        g2D.scale(3, 3);
+        g2D.scale(1.5, 1.5);
 
         //tło
         for (int i = 0; i < PANEL_WIDTH; i = i + 100) {
@@ -43,12 +45,16 @@ public class MyPanel extends JPanel implements ActionListener {
         }
 
         //czerwony kwadrat
-        g2D.setPaint(this.player.getColor());
-        g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
+        //g2D.setPaint(this.player.getColor());
+        //g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
 
         //bohater
-        g2D.drawImage(this.player.getSprite(), this.player.getX(), 100, null);
+        g2D.drawImage(this.player.getSprite(), this.player.getX(), this.player.getY(), null);
         //System.out.println(this.player.getSpriteSheet() + ": " + this.player.getSpriteIndex());
+
+        //blok
+        g2D.drawImage(this.block.getImage(), 100, 200, null);
+
     }
 
     @Override
@@ -57,8 +63,23 @@ public class MyPanel extends JPanel implements ActionListener {
         this.sprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.player.getDirection());
         this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
 
+        handleVerticalCollision();
+
         this.player.loop(60);
         repaint(); //ciągłe rysowanie nowych klatek - musi być!
+    }
+
+    public void handleVerticalCollision(){
+        int downPlayerCornersY = this.player.getY() + this.player.getHeight();
+        int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
+        int downBlockCornersY = this.block.getY() + this.block.getHeight();
+        int rightBlockCornersX = this.block.getX() + this.block.getWidth();
+
+        if(rightPlayerCornersX >= this.block.getX() && this.player.getX() <= rightBlockCornersX &&
+                downPlayerCornersY >= this.block.getY() && this.player.getY() < this.block.getY()){
+            this.player.setY(this.block.getY() - this.player.getHeight());
+            this.player.landed();
+        }
     }
 
     public BufferedImage[] flip(BufferedImage[] sprites) {
