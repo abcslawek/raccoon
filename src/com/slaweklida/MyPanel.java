@@ -28,7 +28,7 @@ public class MyPanel extends JPanel implements ActionListener {
     public MyPanel() {
         this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-        this.timer = new Timer(60, this); //17
+        this.timer = new Timer(17, this); //17
         this.timer.start();
         this.player = new Player(100, 100, 32, 32);
         //this.block = new Block (100, 200, 100, 100, "blockImage");
@@ -57,7 +57,7 @@ public class MyPanel extends JPanel implements ActionListener {
         //g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
 
         //bohater
-        g2D.drawImage(this.player.getSprite(), this.player.getX(), this.player.getY(), null);
+        g2D.drawImage(this.player.getSprite(), this.player.getX(), this.player.getY(), null); //this.player.getY()
         //System.out.println(this.player.getSpriteSheet() + ": " + this.player.getSpriteIndex());
 
         //blok
@@ -90,7 +90,8 @@ public class MyPanel extends JPanel implements ActionListener {
             int rightBlockCornersX = block.getX() + block.getWidth();
 
             if (rightPlayerCornersX >= block.getX() && this.player.getX() <= rightBlockCornersX &&
-                    downPlayerCornersY >= block.getY() && this.player.getY() < block.getY()) {
+                    downPlayerCornersY >= block.getY() - 1 && this.player.getY() < block.getY() - 1) {
+                //TE DWIE KOMENDY NA DOLE SIĘ KLOCA ZE SOBA
                 this.player.setY(block.getY() - this.player.getHeight());
                 this.player.landed();
             }

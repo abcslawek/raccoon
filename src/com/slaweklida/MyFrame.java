@@ -5,10 +5,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.*;
 
+import static java.awt.event.KeyEvent.VK_SPACE;
+
 public class MyFrame extends JFrame implements KeyListener {
     private MyPanel panel;
 
-    public MyFrame(){
+    public MyFrame() {
         panel = new MyPanel();
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,7 +27,7 @@ public class MyFrame extends JFrame implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-        switch (e.getKeyChar()){
+        switch (e.getKeyChar()) {
             case 'a':
                 //System.out.println("You typed key char: " + e.getKeyChar() + " : " + e.getKeyCode());
                 this.panel.getPlayer().move_left(5);
@@ -36,8 +38,12 @@ public class MyFrame extends JFrame implements KeyListener {
                 this.panel.getPlayer().move_right(5);
                 this.panel.getPlayer().setRunning(true);
                 break;
+            case 32:
+                this.panel.getPlayer().jump();
+                break;
         }
     }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -47,7 +53,7 @@ public class MyFrame extends JFrame implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         //System.out.println("You released key char: " + e.getKeyChar() + " : " + e.getKeyCode());
-        switch (e.getKeyChar()){
+        switch (e.getKeyChar()) {
             case 'a':
                 //System.out.println("You released key char: " + e.getKeyChar() + " : " + e.getKeyCode());
                 this.panel.getPlayer().move_left(0);

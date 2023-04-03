@@ -14,7 +14,7 @@ public class Player {
     private Graphics2D g2D;
     private String direction = "";
     private int animationCount;
-    private final int animationDelay = 1;
+    private final int animationDelay = 7;
     final private int GRAVITY = 1;
     private int fallCount;
     private int jumpCount;
@@ -35,6 +35,7 @@ public class Player {
         this.direction = "left";
         this.animationCount = 0;
         this.fallCount = 0;
+        this.jumpCount = 0;
     }
 
     public void move(int dx, int dy){
@@ -60,9 +61,10 @@ public class Player {
 
     public void loop(int fps){
         move(this.xVel, this.yVel);
-        this.yVel += Math.min(2, (this.fallCount / fps) * this.GRAVITY);
+        this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
         this.fallCount += 20;
         updateSprite();
+        System.out.println("Y: " + this.getY());
     }
 
     public void updateSprite(){
@@ -78,6 +80,15 @@ public class Player {
         this.yVel = 0;
         this.fallCount = 0;
         this.jumpCount = 0;
+    }
+
+    public void jump(){
+        this.yVel = -this.GRAVITY * 8;
+        this.animationCount = 0;
+        this.jumpCount ++;
+        if(this.jumpCount == 1){
+            this.fallCount = 0;
+        }
     }
 
     //getters and setters
