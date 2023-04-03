@@ -10,6 +10,8 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MyPanel extends JPanel implements ActionListener {
@@ -19,7 +21,8 @@ public class MyPanel extends JPanel implements ActionListener {
     final int PANEL_HEIGHT = 1080;
     private Timer timer;
     private Player player;
-    private Block block;
+    //private Block block;
+    private ArrayList<Block> blocks;
     private HashMap<String, BufferedImage[]> sprites;
 
     public MyPanel() {
@@ -28,14 +31,19 @@ public class MyPanel extends JPanel implements ActionListener {
         this.timer = new Timer(60, this); //17
         this.timer.start();
         this.player = new Player(100, 100, 32, 32);
-        this.block = new Block (100, 200, 100, 100, "blockImage");
+        //this.block = new Block (100, 200, 100, 100, "blockImage");
+
+        this.blocks = new ArrayList<Block>();
+        for(int i = 0; i < 3; i++){
+            this.blocks.add(new Block(i * 100, 200, 100, 100, "blockImage"));
+        }
     }
 
     public void paint(Graphics g) {
         //must have
         super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
-        g2D.scale(1.5, 1.5);
+        g2D.scale(2, 2);
 
         //tło
         for (int i = 0; i < PANEL_WIDTH; i = i + 100) {
@@ -53,7 +61,12 @@ public class MyPanel extends JPanel implements ActionListener {
         //System.out.println(this.player.getSpriteSheet() + ": " + this.player.getSpriteIndex());
 
         //blok
-        g2D.drawImage(this.block.getImage(), 100, 200, null);
+//        g2D.drawImage(this.block.getImage(), 100, 200, null);
+
+        //bloki
+        for(Block block : this.blocks){
+            g2D.drawImage(block.getImage(), block.getX(), block.getY(), null);
+        }
 
     }
 
@@ -70,15 +83,17 @@ public class MyPanel extends JPanel implements ActionListener {
     }
 
     public void handleVerticalCollision(){
-        int downPlayerCornersY = this.player.getY() + this.player.getHeight();
-        int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
-        int downBlockCornersY = this.block.getY() + this.block.getHeight();
-        int rightBlockCornersX = this.block.getX() + this.block.getWidth();
+        for(Block block : this.blocks) {
+            int downPlayerCornersY = this.player.getY() + this.player.getHeight();
+            int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
+            int downBlockCornersY = block.getY() + block.getHeight();
+            int rightBlockCornersX = block.getX() + block.getWidth();
 
-        if(rightPlayerCornersX >= this.block.getX() && this.player.getX() <= rightBlockCornersX &&
-                downPlayerCornersY >= this.block.getY() && this.player.getY() < this.block.getY()){
-            this.player.setY(this.block.getY() - this.player.getHeight());
-            this.player.landed();
+            if (rightPlayerCornersX >= block.getX() && this.player.getX() <= rightBlockCornersX &&
+                    downPlayerCornersY >= block.getY() && this.player.getY() < block.getY()) {
+                this.player.setY(block.getY() - this.player.getHeight());
+                this.player.landed();
+            }
         }
     }
 

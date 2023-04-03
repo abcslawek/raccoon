@@ -14,7 +14,7 @@ public class Player {
     private Graphics2D g2D;
     private String direction = "";
     private int animationCount;
-    private final int animationDelay = 2;
+    private final int animationDelay = 1;
     final private int GRAVITY = 1;
     private int fallCount;
     private int jumpCount;
