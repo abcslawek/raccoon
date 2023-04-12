@@ -39,6 +39,7 @@ public class MyFrame extends JFrame implements KeyListener {
                 this.panel.getPlayer().setRunning(true);
                 break;
             case 32:
+                this.panel.getPlayer().setY(this.panel.getPlayer().getY() - 1); //usuwa buga i można skakać
                 this.panel.getPlayer().jump();
                 break;
         }

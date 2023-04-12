@@ -62,15 +62,17 @@ public class Player {
     public void loop(int fps){
         move(this.xVel, this.yVel);
         this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
-        this.fallCount += 20;
+        this.fallCount += 10; //20
         updateSprite();
-        System.out.println("Y: " + this.getY());
+        //System.out.println("Y: " + this.getY() + ", yVel: " + this.getyVel() + ", xVel: " + this.getxVel());
     }
 
     public void updateSprite(){
         this.spriteSheet = "idle.png";
         if(this.xVel != 0 && this.isRunning)
             this.spriteSheet = "run.png";
+        else if(this.yVel != 0)
+            this.spriteSheet = "jump.png";
         this.spriteIndex = (this.animationCount / this.animationDelay) % this.sprites.length;
         this.sprite = this.sprites[this.spriteIndex];
         this.animationCount += 1;
@@ -83,11 +85,13 @@ public class Player {
     }
 
     public void jump(){
-        this.yVel = -this.GRAVITY * 8;
-        this.animationCount = 0;
-        this.jumpCount ++;
-        if(this.jumpCount == 1){
-            this.fallCount = 0;
+        if(this.jumpCount <= 1) { //blokada na potrójne skakanie
+            this.yVel = -this.GRAVITY * 8;
+            this.animationCount = 0;
+            this.jumpCount++;
+            if (this.jumpCount == 1) {
+                this.fallCount = 0;
+            }
         }
     }
 

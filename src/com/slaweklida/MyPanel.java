@@ -89,12 +89,18 @@ public class MyPanel extends JPanel implements ActionListener {
             int downBlockCornersY = block.getY() + block.getHeight();
             int rightBlockCornersX = block.getX() + block.getWidth();
 
-            if (rightPlayerCornersX >= block.getX() && this.player.getX() <= rightBlockCornersX &&
-                    downPlayerCornersY >= block.getY() - 1 && this.player.getY() < block.getY() - 1) {
-                //TE DWIE KOMENDY NA DOLE SIĘ KLOCA ZE SOBA
-                this.player.setY(block.getY() - this.player.getHeight());
-                this.player.landed();
+//            if (rightPlayerCornersX >= block.getX() && this.player.getX() <= rightBlockCornersX &&
+//                    downPlayerCornersY >= block.getY() - 1 && this.player.getY() < block.getY() - 1) {
+//                //TE DWIE KOMENDY NA DOLE SIĘ KLOCA ZE SOBA
+//                //this.player.setY(block.getY() - this.player.getHeight());
+//                this.player.landed();
+//            }
+
+            if (downPlayerCornersY >= block.getY()) {
+                this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
+                this.player.landed(); //zeruje prędkość yVel
             }
+
         }
     }
 
