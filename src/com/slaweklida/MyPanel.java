@@ -19,9 +19,9 @@ public class MyPanel extends JPanel implements ActionListener {
     private Image backgroundImage;
     final int PANEL_WIDTH = 1920;
     final int PANEL_HEIGHT = 1080;
+    private int offsetX;
     private Timer timer;
     private Player player;
-    //private Block block;
     private ArrayList<Block> blocks;
     private HashMap<String, BufferedImage[]> sprites;
 
@@ -31,9 +31,7 @@ public class MyPanel extends JPanel implements ActionListener {
         this.timer = new Timer(17, this); //17
         this.timer.start();
         this.player = new Player(100, 100, 32, 32);
-        //this.block = new Block (100, 200, 100, 100, "blockImage");
-
-        this.blocks = new ArrayList<Block>();
+        this.blocks = new ArrayList<>();
         for(int i = 0; i < 3; i++){
             this.blocks.add(new Block(i * 100, 200, 100, 100, "blockImage"));
         }
@@ -52,22 +50,13 @@ public class MyPanel extends JPanel implements ActionListener {
             }
         }
 
-        //czerwony kwadrat
-        //g2D.setPaint(this.player.getColor());
-        //g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
-
         //bohater
-        g2D.drawImage(this.player.getSprite(), this.player.getX(), this.player.getY(), null); //this.player.getY()
-        //System.out.println(this.player.getSpriteSheet() + ": " + this.player.getSpriteIndex());
-
-        //blok
-//        g2D.drawImage(this.block.getImage(), 100, 200, null);
+        g2D.drawImage(this.player.getSprite(), this.player.getX() - this.offsetX, this.player.getY(), null);
 
         //bloki
         for(Block block : this.blocks){
-            g2D.drawImage(block.getImage(), block.getX(), block.getY(), null);
+            g2D.drawImage(block.getImage(), block.getX() - this.offsetX, block.getY(), null);
         }
-
     }
 
     @Override
@@ -77,9 +66,12 @@ public class MyPanel extends JPanel implements ActionListener {
         this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
 
         handleVerticalCollision();
+        handleHorizontalScrolling();
 
         this.player.loop(60);
         repaint(); //ciągłe rysowanie nowych klatek - musi być!
+
+        System.out.println("offsetX: " + this.offsetX);
     }
 
     public void handleVerticalCollision(){
@@ -100,7 +92,14 @@ public class MyPanel extends JPanel implements ActionListener {
                 this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
                 this.player.landed(); //zeruje prędkość yVel
             }
+        }
+    }
 
+    public void handleHorizontalScrolling(){
+        int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
+        if(rightPlayerCornersX - this.offsetX  >= 600 && this.player.getxVel() > 0 ||
+                (this.player.getX() - this.offsetX <= 50 && this.player.getxVel() < 0)) {
+            this.offsetX += this.player.getxVel();
         }
     }
 
@@ -113,14 +112,6 @@ public class MyPanel extends JPanel implements ActionListener {
             sprites[i] = op.filter(sprite, null);
         }
         return sprites;
-    }
-
-    public BufferedImage flipSingleImage(BufferedImage sprite) {
-        AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-        tx.translate(-sprite.getWidth(null), 0);
-        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        sprite = op.filter(sprite, null);
-        return sprite;
     }
 
     public HashMap<String, BufferedImage[]> loadSpriteSheets(String dir1, String dir2, int width, int height, String direction) {
@@ -182,3 +173,6 @@ public class MyPanel extends JPanel implements ActionListener {
 //g2D.setFont(new Font("Ink Free", Font.BOLD, 50));
 //g2D.drawString("U R A WINNER! :D", 50, 50);
 
+//czerwony kwadrat
+//g2D.setPaint(this.player.getColor());
+//g2D.fillRect(this.player.getX(), this.player.getY(), this.player.getWidth(), this.player.getHeight());
