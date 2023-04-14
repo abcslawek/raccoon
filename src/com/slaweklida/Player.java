@@ -11,7 +11,6 @@ public class Player {
     private final Color color = new Color(255, 0, 0);
     private int xVel;
     private int yVel;
-    private Graphics2D g2D;
     private String direction = "";
     private int animationCount;
     private final int animationDelay = 7;
@@ -29,7 +28,6 @@ public class Player {
         this.y = y;
         this.width = width;
         this.height = height;
-
         this.xVel = 0;
         this.yVel = 0;
         this.direction = "left";
@@ -71,7 +69,7 @@ public class Player {
         this.spriteSheet = "idle.png";
         if(this.xVel != 0 && this.isRunning)
             this.spriteSheet = "run.png";
-        else if(this.yVel != 0)
+        if(this.yVel > this.GRAVITY * 2 || this.yVel < this.GRAVITY * -2)
             this.spriteSheet = "jump.png";
         this.spriteIndex = (this.animationCount / this.animationDelay) % this.sprites.length;
         this.sprite = this.sprites[this.spriteIndex];
@@ -82,6 +80,16 @@ public class Player {
         this.yVel = 0;
         this.fallCount = 0;
         this.jumpCount = 0;
+    }
+
+    public void hitHead(){
+        this.fallCount = 0;
+        this.jumpCount++;
+        this.yVel = -1 * this.yVel;
+    }
+
+    public void blocked(){
+        this.xVel = 0;
     }
 
     public void jump(){
@@ -98,18 +106,6 @@ public class Player {
     //getters and setters
     public BufferedImage getSprite() {
         return sprite;
-    }
-
-    public void setSprite(BufferedImage sprite) {
-        this.sprite = sprite;
-    }
-
-    public int getSpriteIndex() {
-        return spriteIndex;
-    }
-
-    public void setSpriteIndex(int spriteIndex) {
-        this.spriteIndex = spriteIndex;
     }
 
     public String getSpriteSheet() {
@@ -132,10 +128,6 @@ public class Player {
         return height;
     }
 
-    public Color getColor() {
-        return color;
-    }
-
     public String getDirection() {
         return direction;
     }
@@ -148,36 +140,12 @@ public class Player {
         return yVel;
     }
 
-    public void setxVel(int xVel) {
-        this.xVel = xVel;
-    }
-
-    public void setyVel(int yVel) {
-        this.yVel = yVel;
-    }
-
     public void setSprites(BufferedImage[] sprites) {
         this.sprites = sprites;
     }
 
-    public boolean isRunning() {
-        return isRunning;
-    }
-
     public void setRunning(boolean running) {
         isRunning = running;
-    }
-
-    public void setSpriteSheet(String spriteSheet) {
-        this.spriteSheet = spriteSheet;
-    }
-
-    public BufferedImage[] getSprites() {
-        return sprites;
-    }
-
-    public int getAnimationCount() {
-        return animationCount;
     }
 
     public void setX(int x) {

@@ -23,6 +23,7 @@ public class MyPanel extends JPanel implements ActionListener {
     private Timer timer;
     private Player player;
     private ArrayList<Block> blocks;
+    private ArrayList<Block> collidedBlocks;
     private HashMap<String, BufferedImage[]> sprites;
 
     public MyPanel() {
@@ -30,11 +31,18 @@ public class MyPanel extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.timer = new Timer(17, this); //17
         this.timer.start();
-        this.player = new Player(100, 100, 32, 32);
+        this.player = new Player(300, 100, 32, 32);
         this.blocks = new ArrayList<>();
-        for(int i = 0; i < 3; i++){
-            this.blocks.add(new Block(i * 100, 200, 100, 100, "blockImage"));
-        }
+        this.collidedBlocks = new ArrayList<>();
+
+        //this.blocks.add(new Block(0, 200, 100, 100, "blockImage"));
+        this.blocks.add(new Block(400, 200, 100, 100, "blockImage"));
+        this.blocks.add(new Block(500, 100, 100, 100, "blockImage"));
+        //this.blocks.add(new Block(100, 200, 100, 100, "blockImage"));
+        //this.blocks.add(new Block(200, 200, 100, 100, "blockImage"));
+        this.blocks.add(new Block(300, 200, 100, 100, "blockImage"));
+
+        //this.blocks.add(new Block(0, 0, 100, 100, "blockImage"));
     }
 
     public void paint(Graphics g) {
@@ -67,33 +75,50 @@ public class MyPanel extends JPanel implements ActionListener {
 
         handleVerticalCollision();
         handleHorizontalScrolling();
+        handleRespawn(300, 100);
 
         this.player.loop(60);
         repaint(); //ciągłe rysowanie nowych klatek - musi być!
 
-        System.out.println("offsetX: " + this.offsetX);
+        System.out.println("collBlocks: " + this.collidedBlocks.size() + " Y:" + this.player.getY() + " allBlocks:" + this.blocks.size());
+
     }
 
-    public void handleVerticalCollision(){
-        for(Block block : this.blocks) {
-            int downPlayerCornersY = this.player.getY() + this.player.getHeight();
-            int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
-            int downBlockCornersY = block.getY() + block.getHeight();
-            int rightBlockCornersX = block.getX() + block.getWidth();
+    public void handleRespawn(int x, int y){
+        if(this.player.getY() >= 500){
+            this.player.setX(x);
+            this.player.setY(y);
+        }
+    }
 
-//            if (rightPlayerCornersX >= block.getX() && this.player.getX() <= rightBlockCornersX &&
-//                    downPlayerCornersY >= block.getY() - 1 && this.player.getY() < block.getY() - 1) {
-//                //TE DWIE KOMENDY NA DOLE SIĘ KLOCA ZE SOBA
-//                //this.player.setY(block.getY() - this.player.getHeight());
-//                this.player.landed();
-//            }
+    public boolean isColliding(Player player, Block block){
+        return (player.getX() <= (block.getX() + block.getWidth())) &&
+                ((player.getX() + player.getWidth()) >= block.getX()) &&
+                (player.getY() <= (block.getY() + block.getHeight())) &&
+                ((player.getY() + player.getHeight()) >= block.getY());
+    }
 
-            if (downPlayerCornersY >= block.getY()) {
-                this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
-                this.player.landed(); //zeruje prędkość yVel
+    public void handleVerticalCollision() {
+        this.collidedBlocks.clear();
+        for (Block block : this.blocks) {
+            if (isColliding(this.player, block)) {
+                if(this.player.getyVel() > 0) {
+                    this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
+                    this.player.landed(); //zeruje prędkość yVel
+                }
+                if(this.player.getyVel() < 0){
+                    this.player.setY(block.getY() + block.getHeight()); //ustawia gracza pod klockiem
+                    this.player.hitHead(); //odwraca prędkość yVel
+                }
+                this.collidedBlocks.add(block); //dodaje ten blok do bloków kolizyjnych
             }
         }
     }
+
+    public void collide(){
+
+    }
+
 
     public void handleHorizontalScrolling(){
         int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
