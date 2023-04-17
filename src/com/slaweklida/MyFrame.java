@@ -30,13 +30,19 @@ public class MyFrame extends JFrame implements KeyListener {
         switch (e.getKeyChar()) {
             case 'a':
                 //System.out.println("You typed key char: " + e.getKeyChar() + " : " + e.getKeyCode());
-                this.panel.getPlayer().move_left(5);
-                this.panel.getPlayer().setRunning(true);
+                //if(!this.panel.horizontalCollide(this.panel.getPlayer(),
+                //        this.panel.getBlocks(), this.panel.getPlayer().getxVel())) {
+                    this.panel.getPlayer().move_left(Player.getVEL());
+                    this.panel.getPlayer().setRunning(true);
+                //}
                 break;
             case 'd':
                 //System.out.println("You typed key char: " + e.getKeyChar() + " : " + e.getKeyCode());
-                this.panel.getPlayer().move_right(5);
-                this.panel.getPlayer().setRunning(true);
+                //if(!this.panel.horizontalCollide(this.panel.getPlayer(),
+                //        this.panel.getBlocks(), this.panel.getPlayer().getxVel())) {
+                    this.panel.getPlayer().move_right(Player.getVEL());
+                    this.panel.getPlayer().setRunning(true);
+                //}
                 break;
             case 32:
                 this.panel.getPlayer().setY(this.panel.getPlayer().getY() - 1); // -1 usuwa buga i można skakać

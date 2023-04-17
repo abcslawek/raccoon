@@ -15,6 +15,7 @@ public class Player {
     private int animationCount;
     private final int animationDelay = 7;
     final private int GRAVITY = 1;
+    final private static int VEL = 5;
     private int fallCount;
     private int jumpCount;
     private String spriteSheet = "idle.png";
@@ -62,14 +63,16 @@ public class Player {
         this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
         this.fallCount += 10; //20
         updateSprite();
-        //System.out.println("Y: " + this.getY() + ", yVel: " + this.getyVel() + ", xVel: " + this.getxVel());
+        System.out.println("X: " + this.getY() + ", Y: " + this.getY() + ", yVel: " + this.getyVel() + ", xVel: " + this.getxVel());
     }
 
     public void updateSprite(){
         this.spriteSheet = "idle.png";
         if(this.xVel != 0 && this.isRunning)
             this.spriteSheet = "run.png";
-        if(this.yVel > this.GRAVITY * 2 || this.yVel < this.GRAVITY * -2)
+        if(this.yVel > this.GRAVITY * 2)
+            this.spriteSheet = "fall.png";
+        if(this.yVel < this.GRAVITY * -2)
             this.spriteSheet = "jump.png";
         this.spriteIndex = (this.animationCount / this.animationDelay) % this.sprites.length;
         this.sprite = this.sprites[this.spriteIndex];
@@ -138,6 +141,10 @@ public class Player {
 
     public int getyVel() {
         return yVel;
+    }
+
+    public static int getVEL() {
+        return VEL;
     }
 
     public void setSprites(BufferedImage[] sprites) {

@@ -70,7 +70,7 @@ public class MyPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         //loading sprites to player
-        this.sprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.player.getDirection());
+        this.sprites = loadSpriteSheets("sprites", "Raccoon", 32, 32, this.player.getDirection());
         this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
 
         handleVerticalCollision();
@@ -80,7 +80,7 @@ public class MyPanel extends JPanel implements ActionListener {
         this.player.loop(60);
         repaint(); //ciągłe rysowanie nowych klatek - musi być!
 
-        System.out.println("collBlocks: " + this.collidedBlocks.size() + " Y:" + this.player.getY() + " allBlocks:" + this.blocks.size());
+        //System.out.println(horizontalCollide(this.player, this.blocks, this.player.getxVel()));
 
     }
 
@@ -91,17 +91,35 @@ public class MyPanel extends JPanel implements ActionListener {
         }
     }
 
-    public boolean isColliding(Player player, Block block){
-        return (player.getX() <= (block.getX() + block.getWidth())) &&
-                ((player.getX() + player.getWidth()) >= block.getX()) &&
-                (player.getY() <= (block.getY() + block.getHeight())) &&
-                ((player.getY() + player.getHeight()) >= block.getY());
+    public boolean isColliding(Player player, Block block, boolean fully){
+        if(fully)
+            return (player.getX() <= (block.getX() + block.getWidth())) &&
+                    ((player.getX() + player.getWidth()) >= block.getX()) &&
+                    (player.getY() <= (block.getY() + block.getHeight())) &&
+                    ((player.getY() + player.getHeight()) >= block.getY());
+        else
+            return (player.getX() <= (block.getX() + block.getWidth())) &&
+                    ((player.getX() + player.getWidth()) >= block.getX());
+    }
+
+    public boolean horizontalCollide(Player player, ArrayList<Block> blocks, int vel){
+        this.player.move(vel, this.player.getY());
+        for(Block block : blocks){
+            if(isColliding(player, block, false)){
+                this.player.move(-vel, this.player.getY());
+                return true;
+            }else{
+                this.player.move(-vel, this.player.getY());
+                return false;
+            }
+        }
+        return false;
     }
 
     public void handleVerticalCollision() {
         this.collidedBlocks.clear();
         for (Block block : this.blocks) {
-            if (isColliding(this.player, block)) {
+            if (isColliding(this.player, block, true)) {
                 if(this.player.getyVel() > 0) {
                     this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
                     this.player.landed(); //zeruje prędkość yVel
@@ -114,11 +132,6 @@ public class MyPanel extends JPanel implements ActionListener {
             }
         }
     }
-
-    public void collide(){
-
-    }
-
 
     public void handleHorizontalScrolling(){
         int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
@@ -168,6 +181,10 @@ public class MyPanel extends JPanel implements ActionListener {
     //getter
     public Player getPlayer() {
         return this.player;
+    }
+
+    public ArrayList<Block> getBlocks() {
+        return blocks;
     }
 }
 
