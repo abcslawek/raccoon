@@ -5,16 +5,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MyPanel extends JPanel implements ActionListener {
+public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
     private Image backgroundImage;
     final int PANEL_WIDTH = 1920;
@@ -25,24 +26,50 @@ public class MyPanel extends JPanel implements ActionListener {
     private ArrayList<Block> blocks;
     private ArrayList<Block> collidedBlocks;
     private HashMap<String, BufferedImage[]> sprites;
+    private boolean collideLeft = false;
+    private boolean collideRight = false;
+
+                                        private boolean aKeyPressed = false;
+                                        private boolean dKeyPressed = false;
+                                        private Timer miniTimer = new Timer(30, new ActionListener() {
+                                            public void actionPerformed(ActionEvent e) {
+                                                if (aKeyPressed) {
+                                                    if (!collide(-Player.getVEL())) {
+                                                        player.moveLeft(Player.getVEL()); //ustawiło xVel na -5
+                                                        player.setRunning(true); //do zmiany sprita
+                                                    }
+                                                }
+                                                if (dKeyPressed) {
+                                                    if (!collide(Player.getVEL())) {
+                                                        player.moveRight(Player.getVEL()); //ustawiło xVel na -5
+                                                        player.setRunning(true); //do zmiany sprita
+                                                    }
+                                                }
+                                            }
+                                        });
 
     public MyPanel() {
+        //zdarzenia z klawiatury
+        this.addKeyListener(this);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+
+        //reszta kodu
         this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.timer = new Timer(17, this); //17
         this.timer.start();
-        this.player = new Player(300, 100, 32, 32);
+        this.player = new Player(330, 100, 32, 32);
         this.blocks = new ArrayList<>();
         this.collidedBlocks = new ArrayList<>();
 
-        //this.blocks.add(new Block(0, 200, 100, 100, "blockImage"));
+        //bloki
         this.blocks.add(new Block(400, 200, 100, 100, "blockImage"));
         this.blocks.add(new Block(500, 100, 100, 100, "blockImage"));
-        //this.blocks.add(new Block(100, 200, 100, 100, "blockImage"));
-        //this.blocks.add(new Block(200, 200, 100, 100, "blockImage"));
         this.blocks.add(new Block(300, 200, 100, 100, "blockImage"));
-
-        //this.blocks.add(new Block(0, 0, 100, 100, "blockImage"));
+        this.blocks.add(new Block(200, 200, 100, 100, "blockImage"));
+        this.blocks.add(new Block(100, 100, 100, 100, "blockImage"));
+        this.blocks.add(new Block(200, 000, 100, 100, "blockImage"));
     }
 
     public void paint(Graphics g) {
@@ -58,13 +85,31 @@ public class MyPanel extends JPanel implements ActionListener {
             }
         }
 
+        //maska bohatera
+        g2D.setPaint(Color.white);
+        g2D.drawRect(this.player.getMaskX() - this.offsetX, this.player.getMaskY(),
+                this.player.getMaskWidth(), this.player.getMaskHeight());
+
         //bohater
         g2D.drawImage(this.player.getSprite(), this.player.getX() - this.offsetX, this.player.getY(), null);
 
         //bloki
-        for(Block block : this.blocks){
+        for (Block block : this.blocks) {
             g2D.drawImage(block.getImage(), block.getX() - this.offsetX, block.getY(), null);
         }
+
+        //parametry
+        g2D.setPaint(new Color(153, 0, 255));
+        g2D.setFont(new Font("Calibri", Font.BOLD, 13));
+        g2D.drawString("X: " + this.player.getX(), 10, 50);
+        g2D.drawString("Y: " + this.player.getY(), 10, 60);
+        g2D.drawString("Mask X: " + this.player.getMaskX(), 10, 70);
+        g2D.drawString("Mask Y: " + this.player.getMaskY(), 10, 80);
+        g2D.drawString("xVel: " + this.player.getxVel(), 10, 90);
+        g2D.drawString("yVel: " + this.player.getyVel(), 10, 100);
+        g2D.drawString("Collided Blocks: " + this.collidedBlocks.size(), 10, 110);
+        g2D.drawString("Mask colliding left: " + this.collideLeft, 10, 120);
+        g2D.drawString("Mask colliding right: " + this.collideRight, 10, 130);
     }
 
     @Override
@@ -75,56 +120,57 @@ public class MyPanel extends JPanel implements ActionListener {
 
         handleVerticalCollision();
         handleHorizontalScrolling();
-        handleRespawn(300, 100);
+        handleRespawn(330, 100);
 
-        this.player.loop(60);
-        repaint(); //ciągłe rysowanie nowych klatek - musi być!
-
-        //System.out.println(horizontalCollide(this.player, this.blocks, this.player.getxVel()));
-
+        this.player.loop(60); //jeśli isRunning to może się wykonać tylko raz
+        repaint(); //narysowanie nowej klatki
     }
 
-    public void handleRespawn(int x, int y){
-        if(this.player.getY() >= 500){
-            this.player.setX(x);
-            this.player.setY(y);
-        }
-    }
-
-    public boolean isColliding(Player player, Block block, boolean fully){
-        if(fully)
-            return (player.getX() <= (block.getX() + block.getWidth())) &&
-                    ((player.getX() + player.getWidth()) >= block.getX()) &&
-                    (player.getY() <= (block.getY() + block.getHeight())) &&
-                    ((player.getY() + player.getHeight()) >= block.getY());
-        else
-            return (player.getX() <= (block.getX() + block.getWidth())) &&
-                    ((player.getX() + player.getWidth()) >= block.getX());
-    }
-
-    public boolean horizontalCollide(Player player, ArrayList<Block> blocks, int vel){
-        this.player.move(vel, this.player.getY());
-        for(Block block : blocks){
-            if(isColliding(player, block, false)){
-                this.player.move(-vel, this.player.getY());
+    public boolean collide(int vel) {
+        this.player.moveMask(vel, 0);
+        System.out.println("pre mX: " + this.player.getMaskX() + ", X: " + this.player.getX());
+        for (Block block : this.blocks) {
+            if (isMaskColliding(this.player, block)) {
+                this.player.moveMask(-vel, 0);
+                System.out.println("KOLIZJA - maska wróciła, mX: " + this.player.getMaskX() + ", X: " + this.player.getX());
+                this.player.setxVel(0); //po respawnie gdy się idzie w kierunku ściany to postać się zatrzymuje
                 return true;
-            }else{
-                this.player.move(-vel, this.player.getY());
-                return false;
             }
         }
+        this.player.moveMask(-vel, 0);
+        System.out.println("BRAK KOLIZJI - maska wróciła, mX: " + this.player.getMaskX() + ", X: " + this.player.getX());
         return false;
+    }
+
+    public boolean isPlayerColliding(Player player, Block block) {
+        int x, y;
+        x = player.getX();
+        y = player.getY();
+        return (x <= (block.getX() + block.getWidth())) &&
+                ((x + player.getWidth()) >= block.getX()) &&
+                (y <= (block.getY() + block.getHeight())) &&
+                ((y + player.getHeight()) >= block.getY());
+    }
+
+    public boolean isMaskColliding(Player player, Block block) {
+        int x, y;
+        x = player.getMaskX();
+        y = player.getMaskY();
+        return (x <= (block.getX() + block.getWidth())) &&
+                ((x + player.getMaskWidth()) >= block.getX()) &&
+                (y <= (block.getY() + block.getHeight())) &&
+                ((y + player.getMaskHeight()) >= block.getY());
     }
 
     public void handleVerticalCollision() {
         this.collidedBlocks.clear();
         for (Block block : this.blocks) {
-            if (isColliding(this.player, block, true)) {
-                if(this.player.getyVel() > 0) {
+            if (isPlayerColliding(this.player, block)) {
+                if (this.player.getyVel() > 0) {
                     this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
                     this.player.landed(); //zeruje prędkość yVel
                 }
-                if(this.player.getyVel() < 0){
+                if (this.player.getyVel() < 0) {
                     this.player.setY(block.getY() + block.getHeight()); //ustawia gracza pod klockiem
                     this.player.hitHead(); //odwraca prędkość yVel
                 }
@@ -133,11 +179,18 @@ public class MyPanel extends JPanel implements ActionListener {
         }
     }
 
-    public void handleHorizontalScrolling(){
+    public void handleHorizontalScrolling() {
         int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
-        if(rightPlayerCornersX - this.offsetX  >= 600 && this.player.getxVel() > 0 ||
+        if (rightPlayerCornersX - this.offsetX >= 600 && this.player.getxVel() > 0 ||
                 (this.player.getX() - this.offsetX <= 50 && this.player.getxVel() < 0)) {
             this.offsetX += this.player.getxVel();
+        }
+    }
+
+    public void handleRespawn(int x, int y) {
+        if (this.player.getY() >= 500) {
+            this.player.setX(x);
+            this.player.setY(y);
         }
     }
 
@@ -177,14 +230,70 @@ public class MyPanel extends JPanel implements ActionListener {
         return allSprites;
     }
 
-
     //getter
     public Player getPlayer() {
         return this.player;
     }
 
-    public ArrayList<Block> getBlocks() {
-        return blocks;
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        switch (e.getKeyChar()) {
+            case 'a':
+                System.out.println("wciśniecie a");
+                aKeyPressed = true;
+                miniTimer.start();
+//                System.out.println("You typed key char: " + e.getKeyChar() + " : " + e.getKeyCode());
+//                System.out.println("Wciśnięcie a");
+//                if (!collide(-Player.getVEL())) {
+//                    this.player.moveLeft(Player.getVEL()); //ustawiło xVel na -5
+//                    this.player.setRunning(true); //do zmiany sprita
+//                }
+                break;
+            case 'd':
+                System.out.println("wciśniecie d");
+                dKeyPressed = true;
+                miniTimer.start();
+                //System.out.println("You typed key char: " + e.getKeyChar() + " : " + e.getKeyCode());
+//                if (!collide(Player.getVEL())) {
+//                    this.player.moveRight(Player.getVEL());
+//                    this.player.setRunning(true); //do zmiany sprita
+//                }
+                break;
+            case 'r':
+                this.player.setX(330);
+                this.player.setY(0);
+                break;
+            case 32:
+                this.player.move(0, -1); // -1 usuwa buga i można skakać
+                this.player.jump();
+                break;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        //System.out.println("You released key char: " + e.getKeyChar() + " : " + e.getKeyCode());
+        switch (e.getKeyChar()) {
+            case 'a':
+                System.out.println("zwolnienie a");
+                this.player.setxVel(0);
+                this.player.setRunning(false); //do zmiany sprita
+                aKeyPressed = false;
+                miniTimer.stop();
+                break;
+            case 'd':
+                System.out.println("Zwolnienie d");
+                this.player.setxVel(0);
+                this.player.setRunning(false); //do zmiany sprita
+                dKeyPressed = false;
+                miniTimer.stop();
+                break;
+        }
     }
 }
 
