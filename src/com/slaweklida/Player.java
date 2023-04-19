@@ -26,8 +26,6 @@ public class Player {
     private int spriteIndex;
     private BufferedImage[] sprites;
     private BufferedImage sprite;
-    private boolean isRunning = false;
-    private boolean wasLoop = false;
 
     public Player(int x, int y, int width, int height) {
         this.x = x;
@@ -81,20 +79,16 @@ public class Player {
     public void loop(int fps) {
         for (int i = 0; i < 1; i++) {
             move(this.xVel, this.yVel);
-            //System.out.println("Player -> loop() przesunięcie, X: " + this.x + ", xVel: " + this.xVel);
-//        this.xVel = 0; //tutaj kolizja pozioma działa ale laguje
             updateMask();
             this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
             this.fallCount += 10; //20
             updateSprite();
-            //System.out.println("X: " + this.x + ", xVel: " + this.xVel);
         }
-
     }
 
     public void updateSprite() {
         this.spriteSheet = "idle.png";
-        if (this.xVel != 0) // && this.isRunning
+        if (this.xVel != 0)
             this.spriteSheet = "run.png";
         if (this.yVel > this.GRAVITY * 2)
             this.spriteSheet = "fall.png";
@@ -181,10 +175,6 @@ public class Player {
         this.sprites = sprites;
     }
 
-    public void setRunning(boolean running) {
-        isRunning = running;
-    }
-
     public void setX(int x) {
         this.x = x;
     }
@@ -193,12 +183,8 @@ public class Player {
         this.y = y;
     }
 
-    public void setxVel(int xVel) {
+    public void setXVel(int xVel) {
         this.xVel = xVel;
-    }
-
-    public boolean isRunning() {
-        return isRunning;
     }
 
     public int getMaskWidth() {
@@ -207,13 +193,5 @@ public class Player {
 
     public int getMaskHeight() {
         return maskHeight;
-    }
-
-    public boolean isWasLoop() {
-        return wasLoop;
-    }
-
-    public void setWasLoop(boolean wasLoop) {
-        this.wasLoop = wasLoop;
     }
 }
