@@ -20,6 +20,7 @@ public class Player {
     private final int animationDelay = 7; //7
     final private int GRAVITY = 1;
     final private static int VEL = 5;
+    private int lifes;
     private int fallCount;
     private int jumpCount;
     private String spriteSheet = "idle.png";
@@ -42,6 +43,7 @@ public class Player {
         this.animationCount = 0;
         this.fallCount = 0;
         this.jumpCount = 0;
+        this.lifes = 3;
     }
 
     public void move(int dx, int dy) {
@@ -68,7 +70,6 @@ public class Player {
     }
 
     public void moveRight(int vel) {
-        System.out.println("moveRight() nadanie prędkości xVel = 5");
         this.xVel = vel;
         if (!this.direction.equals("right")) {
             this.direction = "right";
@@ -76,14 +77,16 @@ public class Player {
         }
     }
 
+    public void looseLife() {
+        this.lifes -= 1;
+    }
+
     public void loop(int fps) {
-        for (int i = 0; i < 1; i++) {
-            move(this.xVel, this.yVel);
-            updateMask();
-            this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
-            this.fallCount += 10; //20
-            updateSprite();
-        }
+        move(this.xVel, this.yVel);
+        updateMask();
+        this.yVel += Math.min(1, (this.fallCount / fps) * this.GRAVITY);
+        this.fallCount += 10; //20
+        updateSprite();
     }
 
     public void updateSprite() {
@@ -163,6 +166,14 @@ public class Player {
         return VEL;
     }
 
+    public int getLifes() {
+        return lifes;
+    }
+
+    public void setLifes(int lifes) {
+        this.lifes = lifes;
+    }
+
     public int getMaskX() {
         return maskX;
     }
@@ -194,4 +205,5 @@ public class Player {
     public int getMaskHeight() {
         return maskHeight;
     }
+
 }

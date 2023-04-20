@@ -23,9 +23,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private int offsetX;
     private Timer timer;
     private Player player;
+    private ArrayList<Heart> hearts;
     private ArrayList<Block> blocks;
     private ArrayList<Block> collidedBlocks;
+    private EndBlock endBlock;
     private HashMap<String, BufferedImage[]> sprites;
+    private boolean gameOver = false;
+    private boolean win = false;
 
     //obsługa przerwań z klawiatury
     private boolean aKeyPressed = false;
@@ -33,12 +37,12 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private final Timer miniTimer = new Timer(30, new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (aKeyPressed) {
-                if (!collide(-Player.getVEL())) {
+                if (!collide(-Player.getVEL()) && !gameOver) {
                     player.moveLeft(Player.getVEL()); //ustawiło xVel na -5
                 }
             }
             if (dKeyPressed) {
-                if (!collide(Player.getVEL())) {
+                if (!collide(Player.getVEL()) && !gameOver) {
                     player.moveRight(Player.getVEL()); //ustawiło xVel na 5
                 }
             }
@@ -51,12 +55,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
 
-        //grafika
-        this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
-        this.firstHeart = new ImageIcon("src/com/slaweklida/imgs/heart.png").getImage();
-        this.secondHeart = new ImageIcon("src/com/slaweklida/imgs/heart.png").getImage();
-        this.thirdHeart = new ImageIcon("src/com/slaweklida/imgs/heart.png").getImage();
-
         //reszta
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.timer = new Timer(17, this); //17
@@ -64,6 +62,11 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.player = new Player(330, 100, 32, 32);
         this.blocks = new ArrayList<>();
         this.collidedBlocks = new ArrayList<>();
+        this.hearts = new ArrayList<>();
+
+        //serca
+        for (int i = 1; i < this.player.getLifes() + 1; i++)
+            this.hearts.add(new Heart(i * 32, 10, 32, 32));
 
         //tworzenie mapy
         this.blocks.add(new Block(0, 250, 100, 100, "blockImage"));
@@ -80,7 +83,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.blocks.add(new Block(1250, 250, 100, 100, "blockImage"));
         this.blocks.add(new Block(1350, 250, 100, 100, "blockImage"));
         this.blocks.add(new Block(1450, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(1450, 150, 100, 100, "houseImage"));
+        //this.blocks.add(new Block(1450, 150, 100, 100, "houseImage"));
+        this.endBlock = new EndBlock(1450, 150, 100, 100, "houseImage");
     }
 
     public void paint(Graphics g) {
@@ -109,6 +113,23 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             g2D.drawImage(block.getImage(), block.getX() - this.offsetX, block.getY(), null);
         }
 
+        //blok końcowy
+        g2D.drawImage(this.endBlock.getImage(),this.endBlock.getX() - this.offsetX, this.endBlock.getY(), null);
+
+        //serca
+        for (Heart heart : this.hearts) {
+            g2D.drawImage(heart.getImage(), heart.getX(), heart.getY(), null);
+        }
+
+        //napis gameover
+        if (this.gameOver) {
+            g2D.setColor(new Color(197, 142, 255, 255));
+            g2D.fillRect(215, 170, 280, 35); //prostokąt
+            g2D.setPaint(new Color(153, 0, 255));
+            g2D.setFont(new Font("Calibri", Font.BOLD, 40));
+            g2D.drawString("GAME OVER", 250, 200);
+        }
+
         //parametry
 //        g2D.setPaint(new Color(153, 0, 255));
 //        g2D.setFont(new Font("Calibri", Font.BOLD, 13));
@@ -130,6 +151,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleVerticalCollision();
         handleHorizontalScrolling();
         handleRespawn(330, 100);
+        handleGameOver();
 
         this.player.loop(60); //jeśli isRunning to może się wykonać tylko raz
         repaint(); //narysowanie nowej klatki
@@ -195,9 +217,23 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
     public void handleRespawn(int x, int y) {
         if (this.player.getY() >= 500) {
-            this.player.setX(x);
-            this.player.setY(y);
-            this.offsetX = 0;
+            this.player.looseLife(); //gracz traci jedno życie
+
+            try {this.hearts.get(this.player.getLifes()).looseHealth();} //ostatnie serce pustoszeje
+            catch(IndexOutOfBoundsException e) {}
+
+            if(this.player.getLifes() > 0){
+                this.player.setX(x);
+                this.player.setY(y);
+                this.offsetX = 0;
+            }
+        }
+    }
+
+
+    public void handleGameOver() {
+        if (this.player.getLifes() == 0) {
+            this.gameOver = true;
         }
     }
 
