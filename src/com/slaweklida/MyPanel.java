@@ -18,6 +18,9 @@ import java.util.HashMap;
 public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
     private Image backgroundImage;
+    private Image instructionImage;
+    private Image gameOverImage;
+    private Image winImage;
     final int PANEL_WIDTH = 1920;
     final int PANEL_HEIGHT = 1080;
     private int offsetX;
@@ -66,6 +69,11 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         //tło
         this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
 
+        //informacje
+        this.instructionImage = new ImageIcon("src/com/slaweklida/imgs/instructionImage.png").getImage();
+        this.gameOverImage = new ImageIcon("src/com/slaweklida/imgs/gameOverImage.png").getImage();
+        this.winImage = new ImageIcon("src/com/slaweklida/imgs/winImage.png").getImage();
+
         //serca
         for (int i = 1; i < this.player.getLifes() + 1; i++)
             this.hearts.add(new Heart(i * 32, 10, 32, 32));
@@ -101,6 +109,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             }
         }
 
+
+
         //maska bohatera
         //g2D.setPaint(Color.white);
         //g2D.drawRect(this.player.getMaskX() - this.offsetX, this.player.getMaskY(),
@@ -121,17 +131,12 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
         //napis gameOver, win oraz pressRToRestart
         if (this.gameOver || this.win) {
-            g2D.setColor(new Color(197, 142, 255, 255));
-            g2D.fillRect(215, 170, 280, 60); //prostokąt
-            g2D.setPaint(new Color(153, 0, 255));
-            g2D.drawRect(215, 170, 280, 60);
-            g2D.setPaint(new Color(153, 0, 255));
-            g2D.setFont(new Font("Calibri", Font.BOLD, 40));
-            if (this.gameOver) g2D.drawString("GAME OVER", 250, 200);
-            else g2D.drawString("WIN", 320, 200);
-            g2D.setFont(new Font("Calibri", Font.BOLD, 20));
-            g2D.drawString("PRESS \"R\" TO RESTART", 255, 225);
+            if (this.gameOver) g2D.drawImage(this.gameOverImage, 205, 165, null);
+            else g2D.drawImage(this.winImage, 205, 165, null);
         }
+
+        //informacje
+        g2D.drawImage(this.instructionImage, 32, 46, null);
 
 
         //parametry
@@ -227,8 +232,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             this.player.looseLife(); //gracz traci jedno życie
 
             try {
-                this.hearts.get(this.player.getLifes()).looseHealth();
-            } //ostatnie serce pustoszeje
+                this.hearts.get(this.player.getLifes()).looseHealth(); //ostatnie na liście serce pustoszeje
+            }
             catch (IndexOutOfBoundsException e) {
             }
 

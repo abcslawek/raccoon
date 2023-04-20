@@ -170,10 +170,6 @@ public class Player {
         return lifes;
     }
 
-    public void setLifes(int lifes) {
-        this.lifes = lifes;
-    }
-
     public int getMaskX() {
         return maskX;
     }
