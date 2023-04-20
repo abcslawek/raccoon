@@ -17,7 +17,7 @@ import java.util.HashMap;
 
 public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
-    private Image backgroundImage, firstHeart, secondHeart, thirdHeart;
+    private Image backgroundImage;
     final int PANEL_WIDTH = 1920;
     final int PANEL_HEIGHT = 1080;
     private int offsetX;
@@ -26,7 +26,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private ArrayList<Heart> hearts;
     private ArrayList<Block> blocks;
     private ArrayList<Block> collidedBlocks;
-    private EndBlock endBlock;
     private HashMap<String, BufferedImage[]> sprites;
     private boolean gameOver = false;
     private boolean win = false;
@@ -37,12 +36,12 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private final Timer miniTimer = new Timer(30, new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (aKeyPressed) {
-                if (!collide(-Player.getVEL()) && !gameOver) {
+                if (!collide(-Player.getVEL()) && !gameOver && !win) {
                     player.moveLeft(Player.getVEL()); //ustawiło xVel na -5
                 }
             }
             if (dKeyPressed) {
-                if (!collide(Player.getVEL()) && !gameOver) {
+                if (!collide(Player.getVEL()) && !gameOver && !win) {
                     player.moveRight(Player.getVEL()); //ustawiło xVel na 5
                 }
             }
@@ -64,27 +63,29 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.collidedBlocks = new ArrayList<>();
         this.hearts = new ArrayList<>();
 
+        //tło
+        this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
+
         //serca
         for (int i = 1; i < this.player.getLifes() + 1; i++)
             this.hearts.add(new Heart(i * 32, 10, 32, 32));
 
         //tworzenie mapy
-        this.blocks.add(new Block(0, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(100, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(200, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(300, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(400, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(500, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(600, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(600, 150, 100, 100, "blockImage"));
-        this.blocks.add(new Block(800, 150, 100, 100, "blockImage"));
-        this.blocks.add(new Block(1050, 50, 100, 100, "blockImage"));
-        this.blocks.add(new Block(1150, 150, 100, 100, "blockImage"));
-        this.blocks.add(new Block(1250, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(1350, 250, 100, 100, "blockImage"));
-        this.blocks.add(new Block(1450, 250, 100, 100, "blockImage"));
-        //this.blocks.add(new Block(1450, 150, 100, 100, "houseImage"));
-        this.endBlock = new EndBlock(1450, 150, 100, 100, "houseImage");
+        this.blocks.add(new SolidBlock(0, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(100, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(200, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(300, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(400, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(500, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(600, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(600, 150, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(800, 150, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1050, 50, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1150, 150, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1250, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1350, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1450, 250, 100, 100, "blockImage"));
+        this.blocks.add(new EndBlock(1450, 150, 100, 100, "houseImage"));
     }
 
     public void paint(Graphics g) {
@@ -113,22 +114,25 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             g2D.drawImage(block.getImage(), block.getX() - this.offsetX, block.getY(), null);
         }
 
-        //blok końcowy
-        g2D.drawImage(this.endBlock.getImage(),this.endBlock.getX() - this.offsetX, this.endBlock.getY(), null);
-
         //serca
         for (Heart heart : this.hearts) {
             g2D.drawImage(heart.getImage(), heart.getX(), heart.getY(), null);
         }
 
-        //napis gameover
-        if (this.gameOver) {
+        //napis gameOver, win oraz pressRToRestart
+        if (this.gameOver || this.win) {
             g2D.setColor(new Color(197, 142, 255, 255));
-            g2D.fillRect(215, 170, 280, 35); //prostokąt
+            g2D.fillRect(215, 170, 280, 60); //prostokąt
+            g2D.setPaint(new Color(153, 0, 255));
+            g2D.drawRect(215, 170, 280, 60);
             g2D.setPaint(new Color(153, 0, 255));
             g2D.setFont(new Font("Calibri", Font.BOLD, 40));
-            g2D.drawString("GAME OVER", 250, 200);
+            if (this.gameOver) g2D.drawString("GAME OVER", 250, 200);
+            else g2D.drawString("WIN", 320, 200);
+            g2D.setFont(new Font("Calibri", Font.BOLD, 20));
+            g2D.drawString("PRESS \"R\" TO RESTART", 255, 225);
         }
+
 
         //parametry
 //        g2D.setPaint(new Color(153, 0, 255));
@@ -163,6 +167,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             if (isMaskColliding(this.player, block)) {
                 this.player.moveMask(-vel, 0);
                 this.player.setXVel(0); //po respawnie gdy się idzie w kierunku ściany to postać się zatrzymuje
+                if (block instanceof EndBlock) {
+                    this.win = true;
+                }
                 return true;
             }
         }
@@ -219,10 +226,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         if (this.player.getY() >= 500) {
             this.player.looseLife(); //gracz traci jedno życie
 
-            try {this.hearts.get(this.player.getLifes()).looseHealth();} //ostatnie serce pustoszeje
-            catch(IndexOutOfBoundsException e) {}
+            try {
+                this.hearts.get(this.player.getLifes()).looseHealth();
+            } //ostatnie serce pustoszeje
+            catch (IndexOutOfBoundsException e) {
+            }
 
-            if(this.player.getLifes() > 0){
+            if (this.player.getLifes() > 0) {
                 this.player.setX(x);
                 this.player.setY(y);
                 this.offsetX = 0;
@@ -235,6 +245,11 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         if (this.player.getLifes() == 0) {
             this.gameOver = true;
         }
+    }
+
+    public void restoreHearts() {
+        for (Heart heart : this.hearts)
+            heart.restoreHealth();
     }
 
     public BufferedImage[] flip(BufferedImage[] sprites) {
@@ -290,9 +305,15 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 miniTimer.start();
                 break;
             case 'r':
-                this.player.setX(330);
-                this.player.setY(0);
-                this.offsetX = 0;
+                if (this.gameOver || this.win) {
+                    this.player.setX(330);
+                    this.player.setY(0);
+                    this.offsetX = 0;
+                    this.player = new Player(330, 100, 32, 32);
+                    restoreHearts();
+                    this.gameOver = false;
+                    this.win = false;
+                }
                 break;
             case 32:
                 this.player.move(0, -1); // -1 usuwa buga i można skakać

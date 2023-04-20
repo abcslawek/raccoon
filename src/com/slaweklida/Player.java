@@ -39,7 +39,7 @@ public class Player {
         this.maskHeight = 31; //31
         this.xVel = 0;
         this.yVel = 0;
-        this.direction = "left";
+        this.direction = "right";
         this.animationCount = 0;
         this.fallCount = 0;
         this.jumpCount = 0;

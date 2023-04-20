@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Block {
+abstract public class Block {
     private int x;
     private int y;
     private int width;
