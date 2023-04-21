@@ -1,6 +1,7 @@
 package com.slaweklida;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -109,8 +110,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             }
         }
 
-
-
         //maska bohatera
         //g2D.setPaint(Color.white);
         //g2D.drawRect(this.player.getMaskX() - this.offsetX, this.player.getMaskY(),
@@ -129,15 +128,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             g2D.drawImage(heart.getImage(), heart.getX(), heart.getY(), null);
         }
 
-        //napis gameOver, win oraz pressRToRestart
+        //napisy gameOver win
         if (this.gameOver || this.win) {
             if (this.gameOver) g2D.drawImage(this.gameOverImage, 205, 165, null);
             else g2D.drawImage(this.winImage, 205, 165, null);
         }
 
-        //informacje
+        //instrukcja
         g2D.drawImage(this.instructionImage, 32, 46, null);
-
 
         //parametry
 //        g2D.setPaint(new Color(153, 0, 255));
@@ -153,7 +151,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        //loading sprites to player
+        //wczytanie klatek animacji do gracza
         this.sprites = loadSpriteSheets("sprites", "Raccoon", 32, 32, this.player.getDirection());
         this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
 
@@ -173,6 +171,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 this.player.moveMask(-vel, 0);
                 this.player.setXVel(0); //po respawnie gdy się idzie w kierunku ściany to postać się zatrzymuje
                 if (block instanceof EndBlock) {
+                    playSound("win");
                     this.win = true;
                 }
                 return true;
@@ -233,8 +232,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
             try {
                 this.hearts.get(this.player.getLifes()).looseHealth(); //ostatnie na liście serce pustoszeje
-            }
-            catch (IndexOutOfBoundsException e) {
+            } catch (IndexOutOfBoundsException e) {
             }
 
             if (this.player.getLifes() > 0) {
@@ -245,9 +243,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-
     public void handleGameOver() {
         if (this.player.getLifes() == 0) {
+            playSound("gameOver");
             this.gameOver = true;
         }
     }
@@ -255,6 +253,23 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     public void restoreHearts() {
         for (Heart heart : this.hearts)
             heart.restoreHealth();
+    }
+
+    //audio
+    public static synchronized void playSound(final String name) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    File file = new File("src/com/slaweklida/sounds/" + name + ".wav");
+                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audioStream);
+                    clip.start();
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }).start();
     }
 
     public BufferedImage[] flip(BufferedImage[] sprites) {
