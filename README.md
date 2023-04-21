@@ -1,5 +1,6 @@
 # Raccoon
-It's a platform game with Raccoon adventures.
+It's a platform game with Raccoon adventures written in Java.
+I recreated a project of a platform game presented on the youtube channel "Tech With Tim" written in Python with the Pygame library.
 
 
 ## Table of Contents
@@ -7,15 +8,14 @@ It's a platform game with Raccoon adventures.
 * [Technologies Used](#technologies-used)
 * [Features](#features)
 * [Screenshots](#screenshots)
+* [Usage](#usage)
 * [Project Status](#project-status)
 * [Room for Improvement](#room-for-improvement)
 * [Contact](#contact)
 
 
-
 ## General Information
-- Raccoon is a game still created in Java, it uses a swing collection, you will be able to run, jump, attack wild squirrels and wash the food like real raccoon!
-
+- Raccoon is a game created in Java, it uses a swing collection, you can run, jump, doublejump, fall down, lose life and loose or win the game!
 
 
 ## Technologies Used
@@ -25,28 +25,32 @@ It's a platform game with Raccoon adventures.
 ## Features that already exist
 - Running left and right
 - Falling down
-- Animation of idle and running
+- Animation of idle, running and jumping
+- Death takes your one life (one heart)
+- Winning or losing a game
+- Instruction image
+- Restarting game
+- Sounds
+- Reaching end block
 
 
 ## Screenshots
-- I know, it's not a raccoon yet, I'm using free sprite sheets for now. <br> <br>
-![raccoonRecorded](https://user-images.githubusercontent.com/56951671/228952044-ce6a068f-6435-4ea5-978e-bb5edb15b52b.gif)
+![raccoonFinalRecorded](https://user-images.githubusercontent.com/56951671/233637054-92c3a41f-56ff-4c9b-9536-c0ca84684c00.gif)
 
-
+## Usage
+In order to complete the game you need to be a bit dexterous and use running and jumping to get to your house which is at the end of the map.
 
 ## Project Status
-Project in progress 🔧 
-
+Project is complete. Optionally, in the future, new features can be added.
 
 ## Room for Improvement
-Obvious features to do:
-- Jumping
-- Attacking
-- Enemies
-- World structures
-- Levels
+Optionall new features to do:
+- Attacking enemies
+- New levels
 - Washing food
-- Upgrades
+- Character upgrades
+- Moving environment's object
+- Different difficult levels
 
 
 ## Contact
