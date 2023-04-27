@@ -97,6 +97,7 @@ public class Player {
             this.spriteSheet = "fall.png";
         if (this.yVel < this.GRAVITY * -2)
             this.spriteSheet = "jump.png";
+
         this.spriteIndex = (this.animationCount / this.animationDelay) % this.sprites.length;
         this.sprite = this.sprites[this.spriteIndex];
         this.animationCount += 1;
@@ -125,7 +126,11 @@ public class Player {
         }
     }
 
+
     //getters and setters
+
+
+
     public BufferedImage getSprite() {
         return sprite;
     }

@@ -13,6 +13,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,9 +35,11 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private boolean gameOver = false;
     private boolean win = false;
 
+
     //obsługa przerwań z klawiatury
     private boolean aKeyPressed = false;
     private boolean dKeyPressed = false;
+    private boolean ctrlKeyPressed = false;
     private final Timer miniTimer = new Timer(30, new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (aKeyPressed) {
@@ -60,12 +63,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
         //reszta
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
-        this.timer = new Timer(17, this); //17
+        this.timer = new Timer(23, this); //17
         this.timer.start();
         this.player = new Player(330, 100, 32, 32);
         this.blocks = new ArrayList<>();
         this.collidedBlocks = new ArrayList<>();
         this.hearts = new ArrayList<>();
+
 
         //tło
         this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
@@ -95,6 +99,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.blocks.add(new SolidBlock(1350, 250, 100, 100, "blockImage"));
         this.blocks.add(new SolidBlock(1450, 250, 100, 100, "blockImage"));
         this.blocks.add(new EndBlock(1450, 150, 100, 100, "houseImage"));
+        this.blocks.add(new FlyingBlock(100, 130, 60, 20, 2, 100, "flyingBlockImage"));
     }
 
     public void paint(Graphics g) {
@@ -152,13 +157,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         //wczytanie klatek animacji do gracza
-        this.sprites = loadSpriteSheets("sprites", "Raccoon", 32, 32, this.player.getDirection());
+        this.sprites = loadSpriteSheets("sprites", "Raccoon", 32, 32, this.player.getDirection(), this.player);
         this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
 
         handleVerticalCollision();
         handleHorizontalScrolling();
         handleRespawn(330, 100);
         handleGameOver();
+        handleFlyingBlockMoving(this.blocks);
 
         this.player.loop(60); //jeśli isRunning to może się wykonać tylko raz
         repaint(); //narysowanie nowej klatki
@@ -255,6 +261,25 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             heart.restoreHealth();
     }
 
+    public void handleFlyingBlockMoving(ArrayList<Block> blocks){
+        for(Block block : blocks){
+            if(block instanceof FlyingBlock){
+                int beginningPos = ((FlyingBlock) block).getBeginningXPosition();
+                int currentPos = block.getX();
+                int range = ((FlyingBlock) block).getRange();
+                boolean flyingRight = ((FlyingBlock) block).isFlyingRight();
+                if(currentPos <= range + beginningPos && flyingRight)
+                    ((FlyingBlock) block).moveRight();
+                else if(currentPos <= beginningPos && !flyingRight)
+                    ((FlyingBlock) block).setFlyingRight(true);
+                else {
+                    ((FlyingBlock) block).setFlyingRight(false);
+                    ((FlyingBlock) block).moveLeft();
+                }
+            }
+        }
+    }
+
     //audio
     public static synchronized void playSound(final String name) {
         new Thread(new Runnable() {
@@ -272,7 +297,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }).start();
     }
 
-    public BufferedImage[] flip(BufferedImage[] sprites) {
+    public static BufferedImage[] flip(BufferedImage[] sprites) {
         for (int i = 0; i < sprites.length; i++) {
             BufferedImage sprite = sprites[i];
             AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
@@ -283,7 +308,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         return sprites;
     }
 
-    public HashMap<String, BufferedImage[]> loadSpriteSheets(String dir1, String dir2, int width, int height, String direction) {
+    public HashMap<String, BufferedImage[]> loadSpriteSheets(String dir1, String dir2, int width, int height, String direction, Player player) {
         BufferedImage image = null;
         BufferedImage[] subimages = new BufferedImage[0];
         HashMap<String, BufferedImage[]> allSprites = new HashMap<>();
@@ -295,10 +320,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            int amountOfSubimages = image.getWidth() / this.player.getWidth();
+            int amountOfSubimages = image.getWidth() / player.getWidth();
             subimages = new BufferedImage[amountOfSubimages];
             for (int i = 0; i < amountOfSubimages; i++) {
-                subimages[i] = image.getSubimage(i * this.player.getWidth(), 0, this.player.getWidth(), this.player.getHeight());
+                subimages[i] = image.getSubimage(i * player.getWidth(), 0, player.getWidth(), player.getHeight());
             }
             if (direction.equals("left")) {
                 subimages = flip(subimages);
@@ -307,6 +332,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
         return allSprites;
     }
+
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -339,6 +365,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 this.player.move(0, -1); // -1 usuwa buga i można skakać
                 this.player.jump();
                 break;
+
         }
     }
 
@@ -348,13 +375,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         switch (e.getKeyChar()) {
             case 'a':
                 this.player.setXVel(0);
-                aKeyPressed = false;
-                miniTimer.stop();
+                this.aKeyPressed = false;
+                this.miniTimer.stop();
                 break;
             case 'd':
                 this.player.setXVel(0);
-                dKeyPressed = false;
-                miniTimer.stop();
+                this.dKeyPressed = false;
+                this.miniTimer.stop();
                 break;
         }
     }

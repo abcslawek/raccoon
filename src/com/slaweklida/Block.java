@@ -45,4 +45,8 @@ abstract public class Block {
     public int getHeight() {
         return height;
     }
+
+    public void setX(int x) {
+        this.x = x;
+    }
 }
