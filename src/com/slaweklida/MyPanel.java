@@ -211,6 +211,12 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.collidedBlocks.clear();
         for (Block block : this.blocks) {
             if (isPlayerColliding(this.player, block)) {
+                //przemieszczanie się razem z latającym klockiem
+                if (block instanceof FlyingBlock){
+                    if(((FlyingBlock) block).isFlyingRight()) this.player.move(((FlyingBlock) block).getVel(), 0);
+                    else this.player.move( -((FlyingBlock) block).getVel(), 0);
+                }
+
                 if (this.player.getyVel() > 0) {
                     this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
                     this.player.landed(); //zeruje prędkość yVel

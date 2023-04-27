@@ -39,4 +39,8 @@ public class FlyingBlock extends Block{
     public void setFlyingRight(boolean flyingRight) {
         this.flyingRight = flyingRight;
     }
+
+    public int getVel() {
+        return vel;
+    }
 }
