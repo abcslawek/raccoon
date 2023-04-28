@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 public class MyPanel extends JPanel implements ActionListener, KeyListener {
@@ -94,12 +95,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.blocks.add(new SolidBlock(600, 150, 100, 100, "blockImage"));
         this.blocks.add(new SolidBlock(800, 150, 100, 100, "blockImage"));
         this.blocks.add(new SolidBlock(1050, 50, 100, 100, "blockImage"));
-        this.blocks.add(new SolidBlock(1150, 150, 100, 100, "blockImage"));
-        this.blocks.add(new SolidBlock(1250, 250, 100, 100, "blockImage"));
-        this.blocks.add(new SolidBlock(1350, 250, 100, 100, "blockImage"));
-        this.blocks.add(new SolidBlock(1450, 250, 100, 100, "blockImage"));
-        this.blocks.add(new EndBlock(1450, 150, 100, 100, "houseImage"));
-        this.blocks.add(new FlyingBlock(100, 130, 60, 20, 2, 100, "flyingBlockImage"));
+        this.blocks.add(new SolidBlock(1400, 50, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1500, 150, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1600, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1700, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(1800, 250, 100, 100, "blockImage"));
+        this.blocks.add(new EndBlock(1800, 150, 100, 100, "houseImage"));
+        this.blocks.add(new FlyingBlock(1150, 50, 60, 20, 3, 180, "flyingBlockImage"));
     }
 
     public void paint(Graphics g) {
@@ -213,8 +215,15 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             if (isPlayerColliding(this.player, block)) {
                 //przemieszczanie się razem z latającym klockiem
                 if (block instanceof FlyingBlock){
-                    if(((FlyingBlock) block).isFlyingRight()) this.player.move(((FlyingBlock) block).getVel(), 0);
-                    else this.player.move( -((FlyingBlock) block).getVel(), 0);
+                    if(((FlyingBlock) block).isFlyingRight()) {
+                        this.player.move(((FlyingBlock) block).getVel(), 0);
+                        this.offsetX += ((FlyingBlock) block).getVel();
+                    }
+                    else {
+                        this.player.move( -((FlyingBlock) block).getVel(), 0);
+                        this.offsetX -= ((FlyingBlock) block).getVel();
+                    }
+
                 }
 
                 if (this.player.getyVel() > 0) {
@@ -232,8 +241,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
     public void handleHorizontalScrolling() {
         int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
-        if (rightPlayerCornersX - this.offsetX >= 500 && this.player.getxVel() > 0 ||
-                (this.player.getX() - this.offsetX <= 150 && this.player.getxVel() < 0)) {
+        if (rightPlayerCornersX - this.offsetX >= 450 && this.player.getxVel() > 0 ||
+                (this.player.getX() - this.offsetX <= 200 && this.player.getxVel() < 0)) {
             this.offsetX += this.player.getxVel();
         }
     }
@@ -267,22 +276,25 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             heart.restoreHealth();
     }
 
-    public void handleFlyingBlockMoving(ArrayList<Block> blocks){
-        for(Block block : blocks){
-            if(block instanceof FlyingBlock){
-                int beginningPos = ((FlyingBlock) block).getBeginningXPosition();
-                int currentPos = block.getX();
-                int range = ((FlyingBlock) block).getRange();
-                boolean flyingRight = ((FlyingBlock) block).isFlyingRight();
-                if(currentPos <= range + beginningPos && flyingRight)
-                    ((FlyingBlock) block).moveRight();
-                else if(currentPos <= beginningPos && !flyingRight)
-                    ((FlyingBlock) block).setFlyingRight(true);
-                else {
-                    ((FlyingBlock) block).setFlyingRight(false);
-                    ((FlyingBlock) block).moveLeft();
+    public void handleFlyingBlockMoving(ArrayList<Block> blocks) {
+        try {
+            for (Block block : blocks) {
+                if (block instanceof FlyingBlock) {
+                    int beginningPos = ((FlyingBlock) block).getBeginningXPosition();
+                    int currentPos = block.getX();
+                    int range = ((FlyingBlock) block).getRange();
+                    boolean flyingRight = ((FlyingBlock) block).isFlyingRight();
+                    if (currentPos <= range + beginningPos && flyingRight)
+                        ((FlyingBlock) block).moveRight();
+                    else if (currentPos <= beginningPos && !flyingRight)
+                        ((FlyingBlock) block).setFlyingRight(true);
+                    else {
+                        ((FlyingBlock) block).setFlyingRight(false);
+                        ((FlyingBlock) block).moveLeft();
+                    }
                 }
             }
+        }catch (ConcurrentModificationException e){
         }
     }
 
