@@ -145,10 +145,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         g2D.drawImage(this.instructionImage, 32, 46, null);
 
         //parametry
-//        g2D.setPaint(new Color(153, 0, 255));
-//        g2D.setFont(new Font("Calibri", Font.BOLD, 13));
-//        g2D.drawString("X: " + this.player.getX(), 10, 50);
-//        g2D.drawString("Y: " + this.player.getY(), 10, 60);
+        g2D.setPaint(new Color(153, 0, 255));
+        g2D.setFont(new Font("Calibri", Font.BOLD, 13));
+        g2D.drawString("Sprite sheet: " + this.player.getSpriteSheet(), 10, 50);
+        g2D.drawString("One time animation count: " + this.player.getOneTimeAnimationCount(), 10, 60);
 //        g2D.drawString("Mask X: " + this.player.getMaskX(), 10, 70);
 //        g2D.drawString("Mask Y: " + this.player.getMaskY(), 10, 80);
 //        g2D.drawString("xVel: " + this.player.getxVel(), 10, 90);
@@ -213,6 +213,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.collidedBlocks.clear();
         for (Block block : this.blocks) {
             if (isPlayerColliding(this.player, block)) {
+
                 //przemieszczanie się razem z latającym klockiem
                 if (block instanceof FlyingBlock){
                     if(((FlyingBlock) block).isFlyingRight()) {
@@ -223,7 +224,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                         this.player.move( -((FlyingBlock) block).getVel(), 0);
                         this.offsetX -= ((FlyingBlock) block).getVel();
                     }
-
                 }
 
                 if (this.player.getyVel() > 0) {
@@ -379,6 +379,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.win = false;
                 }
                 break;
+            case 't':
+                    this.player.attack();
+                    break;
             case 32:
                 this.player.move(0, -1); // -1 usuwa buga i można skakać
                 this.player.jump();

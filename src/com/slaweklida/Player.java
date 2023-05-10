@@ -17,6 +17,7 @@ public class Player {
     private int yVel;
     private String direction = "";
     private int animationCount;
+    private int oneTimeAnimationCount;
     private final int animationDelay = 7; //7
     final private int GRAVITY = 1;
     final private static int VEL = 5;
@@ -27,6 +28,7 @@ public class Player {
     private int spriteIndex;
     private BufferedImage[] sprites;
     private BufferedImage sprite;
+    private boolean oneTimeAnimationPlaying = false;
 
     public Player(int x, int y, int width, int height) {
         this.x = x;
@@ -89,18 +91,39 @@ public class Player {
         updateSprite();
     }
 
-    public void updateSprite() {
-        this.spriteSheet = "idle.png";
-        if (this.xVel != 0)
-            this.spriteSheet = "run.png";
-        if (this.yVel > this.GRAVITY * 2)
-            this.spriteSheet = "fall.png";
-        if (this.yVel < this.GRAVITY * -2)
-            this.spriteSheet = "jump.png";
+    public void playOneTimeAnimation(String animation) {
+        this.oneTimeAnimationPlaying = true;
+        this.oneTimeAnimationCount = 0;
+        this.spriteSheet = animation;
+    }
 
-        this.spriteIndex = (this.animationCount / this.animationDelay) % this.sprites.length;
-        this.sprite = this.sprites[this.spriteIndex];
-        this.animationCount += 1;
+    public void updateSprite() {
+        if (this.oneTimeAnimationPlaying) {
+            if (this.oneTimeAnimationCount >= this.sprites.length * this.animationDelay) {
+                this.oneTimeAnimationPlaying = false;
+            } else {
+                this.spriteIndex = (this.oneTimeAnimationCount / (this.animationDelay)) % this.sprites.length;
+                this.sprite = this.sprites[this.spriteIndex];
+                this.oneTimeAnimationCount += 1;
+            }
+        } else {
+            this.spriteSheet = "idle.png";
+            if (this.xVel != 0)
+                this.spriteSheet = "run.png";
+            if (this.yVel > this.GRAVITY * 2)
+                this.spriteSheet = "fall.png";
+            if (this.yVel < this.GRAVITY * -2)
+                this.spriteSheet = "jump.png";
+
+            this.spriteIndex = (this.animationCount / this.animationDelay) % this.sprites.length;
+            this.sprite = this.sprites[this.spriteIndex];
+            this.animationCount += 1;
+        }
+
+    }
+
+    public void attack(){
+        playOneTimeAnimation("attack.png");
     }
 
     public void landed() {
@@ -130,6 +153,9 @@ public class Player {
     //getters and setters
 
 
+    public int getOneTimeAnimationCount() {
+        return oneTimeAnimationCount;
+    }
 
     public BufferedImage getSprite() {
         return sprite;
@@ -207,4 +233,11 @@ public class Player {
         return maskHeight;
     }
 
+    public boolean isOneTimeAnimationPlaying() {
+        return oneTimeAnimationPlaying;
+    }
+
+    public void setOneTimeAnimationPlaying(boolean oneTimeAnimationPlaying) {
+        this.oneTimeAnimationPlaying = oneTimeAnimationPlaying;
+    }
 }
