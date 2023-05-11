@@ -29,10 +29,13 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private int offsetX;
     private Timer timer;
     private Player player;
+    private Enemy enemy;
     private ArrayList<Heart> hearts;
     private ArrayList<Block> blocks;
     private ArrayList<Block> collidedBlocks;
+    private ArrayList<Player> characters;
     private HashMap<String, BufferedImage[]> sprites;
+    private HashMap<String, BufferedImage[]> enemySprites;
     private boolean gameOver = false;
     private boolean win = false;
 
@@ -44,12 +47,12 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private final Timer miniTimer = new Timer(30, new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             if (aKeyPressed) {
-                if (!collide(-Player.getVEL()) && !gameOver && !win) {
+                if (!collide(-Player.getVEL(), player) && !gameOver && !win) {
                     player.moveLeft(Player.getVEL()); //ustawiło xVel na -5
                 }
             }
             if (dKeyPressed) {
-                if (!collide(Player.getVEL()) && !gameOver && !win) {
+                if (!collide(Player.getVEL(), player) && !gameOver && !win) {
                     player.moveRight(Player.getVEL()); //ustawiło xVel na 5
                 }
             }
@@ -67,10 +70,15 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.timer = new Timer(23, this); //17
         this.timer.start();
         this.player = new Player(330, 100, 32, 32);
+        this.enemy = new Enemy(360, 100, 32, 32);
         this.blocks = new ArrayList<>();
         this.collidedBlocks = new ArrayList<>();
         this.hearts = new ArrayList<>();
+        this.characters = new ArrayList<>();
 
+        //dodanie postaci do listy
+        this.characters.add(player);
+        this.characters.add(enemy);
 
         //tło
         this.backgroundImage = new ImageIcon("src/com/slaweklida/imgs/backgroundGrey.png").getImage();
@@ -125,6 +133,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         //bohater
         g2D.drawImage(this.player.getSprite(), this.player.getX() - this.offsetX, this.player.getY(), null);
 
+        //wróg
+        g2D.drawImage(this.enemy.getSprite(), this.enemy.getX() - this.offsetX, this.enemy.getY(), null);
+
         //bloki
         for (Block block : this.blocks) {
             g2D.drawImage(block.getImage(), block.getX() - this.offsetX, block.getY(), null);
@@ -149,10 +160,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         g2D.setFont(new Font("Calibri", Font.BOLD, 13));
         g2D.drawString("Sprite sheet: " + this.player.getSpriteSheet(), 10, 50);
         g2D.drawString("One time animation count: " + this.player.getOneTimeAnimationCount(), 10, 60);
-//        g2D.drawString("Mask X: " + this.player.getMaskX(), 10, 70);
-//        g2D.drawString("Mask Y: " + this.player.getMaskY(), 10, 80);
-//        g2D.drawString("xVel: " + this.player.getxVel(), 10, 90);
-//        g2D.drawString("yVel: " + this.player.getyVel(), 10, 100);
+        g2D.drawString("Enemy X: " + this.enemy.getX(), 10, 70);
+        g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 80);
+        g2D.drawString("X: " + this.player.getX(), 10, 90);
+        g2D.drawString("Y: " + this.player.getY(), 10, 100);
 //        g2D.drawString("Collided Blocks: " + this.collidedBlocks.size(), 10, 110);
     }
 
@@ -162,6 +173,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.sprites = loadSpriteSheets("sprites", "Raccoon", 32, 32, this.player.getDirection(), this.player);
         this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
 
+        //wczytanie klatek animacji do wroga
+        this.enemySprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.enemy.getDirection(), this.enemy);
+        this.enemy.setSprites(this.enemySprites.get(this.enemy.getSpriteSheet()));
+
         handleVerticalCollision();
         handleHorizontalScrolling();
         handleRespawn(330, 100);
@@ -169,15 +184,16 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleFlyingBlockMoving(this.blocks);
 
         this.player.loop(60); //jeśli isRunning to może się wykonać tylko raz
+        this.enemy.loop(60);
         repaint(); //narysowanie nowej klatki
     }
 
-    public boolean collide(int vel) {
-        this.player.moveMask(vel, 0);
+    public boolean collide(int vel, Player character) {
+        character.moveMask(vel, 0);
         for (Block block : this.blocks) {
-            if (isMaskColliding(this.player, block)) {
-                this.player.moveMask(-vel, 0);
-                this.player.setXVel(0); //po respawnie gdy się idzie w kierunku ściany to postać się zatrzymuje
+            if (isMaskColliding(character, block)) {
+                character.moveMask(-vel, 0);
+                character.setXVel(0); //po respawnie gdy się idzie w kierunku ściany to postać się zatrzymuje
                 if (block instanceof EndBlock) {
                     playSound("win");
                     this.win = true;
@@ -185,9 +201,26 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 return true;
             }
         }
-        this.player.moveMask(-vel, 0);
+        character.moveMask(-vel, 0);
         return false;
     }
+
+//    public boolean collide(int vel) {
+//        this.player.moveMask(vel, 0);
+//        for (Block block : this.blocks) {
+//            if (isMaskColliding(this.player, block)) {
+//                this.player.moveMask(-vel, 0);
+//                this.player.setXVel(0); //po respawnie gdy się idzie w kierunku ściany to postać się zatrzymuje
+//                if (block instanceof EndBlock) {
+//                    playSound("win");
+//                    this.win = true;
+//                }
+//                return true;
+//            }
+//        }
+//        this.player.moveMask(-vel, 0);
+//        return false;
+//    }
 
     public boolean isPlayerColliding(Player player, Block block) {
         int x, y;
@@ -211,33 +244,64 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
     public void handleVerticalCollision() {
         this.collidedBlocks.clear();
-        for (Block block : this.blocks) {
-            if (isPlayerColliding(this.player, block)) {
+        for(Player character : this.characters) {
+            for (Block block : this.blocks) {
+                if (isPlayerColliding(character, block)) {
 
-                //przemieszczanie się razem z latającym klockiem
-                if (block instanceof FlyingBlock){
-                    if(((FlyingBlock) block).isFlyingRight()) {
-                        this.player.move(((FlyingBlock) block).getVel(), 0);
-                        this.offsetX += ((FlyingBlock) block).getVel();
+                    //przemieszczanie się razem z latającym klockiem
+                    if (block instanceof FlyingBlock) {
+                        if (((FlyingBlock) block).isFlyingRight()) {
+                            character.move(((FlyingBlock) block).getVel(), 0);
+                            this.offsetX += ((FlyingBlock) block).getVel();
+                        } else {
+                            character.move(-((FlyingBlock) block).getVel(), 0);
+                            this.offsetX -= ((FlyingBlock) block).getVel();
+                        }
                     }
-                    else {
-                        this.player.move( -((FlyingBlock) block).getVel(), 0);
-                        this.offsetX -= ((FlyingBlock) block).getVel();
-                    }
-                }
 
-                if (this.player.getyVel() > 0) {
-                    this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
-                    this.player.landed(); //zeruje prędkość yVel
+                    if (character.getyVel() > 0) {
+                        character.setY(block.getY() - character.getHeight()); //ustawia gracza nad klockiem
+                        character.landed(); //zeruje prędkość yVel
+                    }
+                    if (character.getyVel() < 0) {
+                        character.setY(block.getY() + block.getHeight()); //ustawia gracza pod klockiem
+                        character.hitHead(); //odwraca prędkość yVel
+                    }
+                    this.collidedBlocks.add(block); //dodaje ten blok do bloków kolizyjnych
                 }
-                if (this.player.getyVel() < 0) {
-                    this.player.setY(block.getY() + block.getHeight()); //ustawia gracza pod klockiem
-                    this.player.hitHead(); //odwraca prędkość yVel
-                }
-                this.collidedBlocks.add(block); //dodaje ten blok do bloków kolizyjnych
             }
         }
     }
+
+//    public void handleVerticalCollision() {
+//        this.collidedBlocks.clear();
+//        for (Block block : this.blocks) {
+//            if (isPlayerColliding(this.player, block)) {
+//
+//                //przemieszczanie się razem z latającym klockiem
+//                if (block instanceof FlyingBlock){
+//                    if(((FlyingBlock) block).isFlyingRight()) {
+//                        this.player.move(((FlyingBlock) block).getVel(), 0);
+//                        this.offsetX += ((FlyingBlock) block).getVel();
+//                    }
+//                    else {
+//                        this.player.move( -((FlyingBlock) block).getVel(), 0);
+//                        this.offsetX -= ((FlyingBlock) block).getVel();
+//                    }
+//                }
+//
+//                if (this.player.getyVel() > 0) {
+//                    this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
+//                    this.player.landed(); //zeruje prędkość yVel
+//                }
+//                if (this.player.getyVel() < 0) {
+//                    this.player.setY(block.getY() + block.getHeight()); //ustawia gracza pod klockiem
+//                    this.player.hitHead(); //odwraca prędkość yVel
+//                }
+//                this.collidedBlocks.add(block); //dodaje ten blok do bloków kolizyjnych
+//            }
+//        }
+//    }
 
     public void handleHorizontalScrolling() {
         int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
