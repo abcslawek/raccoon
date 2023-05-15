@@ -182,6 +182,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleRespawn(330, 100);
         handleGameOver();
         handleFlyingBlockMoving(this.blocks);
+        handleAttack(this.enemy);
 
         this.player.loop(60); //jeśli isRunning to może się wykonać tylko raz
         this.enemy.loop(60);
@@ -204,23 +205,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         character.moveMask(-vel, 0);
         return false;
     }
-
-//    public boolean collide(int vel) {
-//        this.player.moveMask(vel, 0);
-//        for (Block block : this.blocks) {
-//            if (isMaskColliding(this.player, block)) {
-//                this.player.moveMask(-vel, 0);
-//                this.player.setXVel(0); //po respawnie gdy się idzie w kierunku ściany to postać się zatrzymuje
-//                if (block instanceof EndBlock) {
-//                    playSound("win");
-//                    this.win = true;
-//                }
-//                return true;
-//            }
-//        }
-//        this.player.moveMask(-vel, 0);
-//        return false;
-//    }
 
     public boolean isPlayerColliding(Player player, Block block) {
         int x, y;
@@ -273,36 +257,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-//    public void handleVerticalCollision() {
-//        this.collidedBlocks.clear();
-//        for (Block block : this.blocks) {
-//            if (isPlayerColliding(this.player, block)) {
-//
-//                //przemieszczanie się razem z latającym klockiem
-//                if (block instanceof FlyingBlock){
-//                    if(((FlyingBlock) block).isFlyingRight()) {
-//                        this.player.move(((FlyingBlock) block).getVel(), 0);
-//                        this.offsetX += ((FlyingBlock) block).getVel();
-//                    }
-//                    else {
-//                        this.player.move( -((FlyingBlock) block).getVel(), 0);
-//                        this.offsetX -= ((FlyingBlock) block).getVel();
-//                    }
-//                }
-//
-//                if (this.player.getyVel() > 0) {
-//                    this.player.setY(block.getY() - this.player.getHeight()); //ustawia gracza nad klockiem
-//                    this.player.landed(); //zeruje prędkość yVel
-//                }
-//                if (this.player.getyVel() < 0) {
-//                    this.player.setY(block.getY() + block.getHeight()); //ustawia gracza pod klockiem
-//                    this.player.hitHead(); //odwraca prędkość yVel
-//                }
-//                this.collidedBlocks.add(block); //dodaje ten blok do bloków kolizyjnych
-//            }
-//        }
-//    }
-
     public void handleHorizontalScrolling() {
         int rightPlayerCornersX = this.player.getX() + this.player.getWidth();
         if (rightPlayerCornersX - this.offsetX >= 450 && this.player.getxVel() > 0 ||
@@ -324,6 +278,22 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 this.player.setX(x);
                 this.player.setY(y);
                 this.offsetX = 0;
+            }
+        }
+    }
+
+    public void handleAttack(Enemy enemy){
+        if(this.player.getSpriteSheet().equals("attack.png")){
+            if(this.player.getX() < enemy.getX() && enemy.getX() < (this.player.getX() + this.player.getAttackRange())
+                    && this.player.getDirection().equals("right")
+                    && this.player.getY() == enemy.getY()){
+                enemy.looseLife();
+                enemy.playOneTimeAnimation("hurt.png");
+            }else if((this.player.getX() - this.player.getAttackRange()) < enemy.getX() && enemy.getX() < this.player.getX()
+                    && this.player.getDirection().equals("left")
+                    && this.player.getY() == enemy.getY()){
+                enemy.looseLife();
+                enemy.playOneTimeAnimation("hurt.png");
             }
         }
     }

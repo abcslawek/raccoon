@@ -18,10 +18,11 @@ public class Player {
     private String direction = "";
     private int animationCount;
     private int oneTimeAnimationCount;
-    private final int animationDelay = 7; //7
+    private final int animationDelay = 6; //7
     final private int GRAVITY = 1;
     final private static int VEL = 5;
     private int lifes;
+    private int attackRange;
     private int fallCount;
     private int jumpCount;
     private String spriteSheet = "idle.png";
@@ -46,6 +47,7 @@ public class Player {
         this.fallCount = 0;
         this.jumpCount = 0;
         this.lifes = 3;
+        this.attackRange = 23;
     }
 
     public void move(int dx, int dy) {
@@ -124,6 +126,7 @@ public class Player {
 
     public void attack(){
         playOneTimeAnimation("attack.png");
+
     }
 
     public void landed() {
@@ -239,5 +242,9 @@ public class Player {
 
     public void setOneTimeAnimationPlaying(boolean oneTimeAnimationPlaying) {
         this.oneTimeAnimationPlaying = oneTimeAnimationPlaying;
+    }
+
+    public int getAttackRange() {
+        return attackRange;
     }
 }
