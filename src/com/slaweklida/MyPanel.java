@@ -438,6 +438,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.player.setY(0);
                     this.offsetX = 0;
                     this.player = new Player(330, 100, 32, 32);
+                    this.characters.add(this.player);
                     restoreHearts();
                     this.gameOver = false;
                     this.win = false;
