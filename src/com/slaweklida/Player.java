@@ -18,7 +18,7 @@ public class Player {
     private String direction = "";
     private int animationCount;
     private int oneTimeAnimationCount;
-    private final int animationDelay = 6; //7
+    private final int animationDelay = 4; //7
     final private int GRAVITY = 1;
     final private static int VEL = 5;
     private int lifes;

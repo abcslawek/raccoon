@@ -38,6 +38,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private HashMap<String, BufferedImage[]> enemySprites;
     private boolean gameOver = false;
     private boolean win = false;
+    private boolean hasEnemyBeenHit = false;
 
 
     //obsługa przerwań z klawiatury
@@ -164,7 +165,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 80);
         g2D.drawString("X: " + this.player.getX(), 10, 90);
         g2D.drawString("Y: " + this.player.getY(), 10, 100);
-//        g2D.drawString("Collided Blocks: " + this.collidedBlocks.size(), 10, 110);
+        g2D.drawString("Enemy health " + this.enemy.getLifes(), 10, 110);
     }
 
     @Override
@@ -174,7 +175,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.player.setSprites(this.sprites.get(this.player.getSpriteSheet()));
 
         //wczytanie klatek animacji do wroga
-        this.enemySprites = loadSpriteSheets("sprites", "3_Dude_Monster", 32, 32, this.enemy.getDirection(), this.enemy);
+        this.enemySprites = loadSpriteSheets("sprites", "2 Owlet_Monster", 32, 32, this.enemy.getDirection(), this.enemy);
         this.enemy.setSprites(this.enemySprites.get(this.enemy.getSpriteSheet()));
 
         handleVerticalCollision();
@@ -287,15 +288,17 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             if(this.player.getX() < enemy.getX() && enemy.getX() < (this.player.getX() + this.player.getAttackRange())
                     && this.player.getDirection().equals("right")
                     && this.player.getY() == enemy.getY()){
-                enemy.looseLife();
+                if(!hasEnemyBeenHit) enemy.looseLife();
+                this.hasEnemyBeenHit = true;
                 enemy.playOneTimeAnimation("hurt.png");
             }else if((this.player.getX() - this.player.getAttackRange()) < enemy.getX() && enemy.getX() < this.player.getX()
                     && this.player.getDirection().equals("left")
                     && this.player.getY() == enemy.getY()){
-                enemy.looseLife();
+                if(!hasEnemyBeenHit) enemy.looseLife();
+                this.hasEnemyBeenHit = true;
                 enemy.playOneTimeAnimation("hurt.png");
             }
-        }
+        }else this.hasEnemyBeenHit = false;
     }
 
     public void handleGameOver() {
