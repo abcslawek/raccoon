@@ -193,7 +193,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleFlyingBlockMoving(this.blocks);
         handleAttack(this.enemy);
         handleEnemiesDying(this.enemy);
-        handleEnemiesMoving(this.enemy, 1);
+        handleEnemiesMoving(this.player, this.enemy, 1, 100);
 
         this.player.loop(60);
         this.enemy.loop(60);
@@ -332,20 +332,41 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    public void handleEnemiesMoving(Enemy enemy, int vel){
-        int beginningPos = enemy.getBeginningXPosition();
-        int currentPos = enemy.getX();
+    public void handleEnemiesMoving(Player player, Enemy enemy, int vel, int chasingRange) {
+        int enemyBeginningPos = enemy.getBeginningXPosition();
+        int enemyCurrentXPos = enemy.getX();
         int range = enemy.getRange();
-        boolean movingRight = enemy.isMovingRight();
-        if (currentPos <= range + beginningPos && movingRight)
+        boolean enemyIsMovingRight = enemy.isMovingRight();
+        if(enemyCurrentXPos == player.getX() || enemyCurrentXPos == player.getX() -1)
+            enemy.setXVel(0);
+        else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() < enemyCurrentXPos)
+            enemy.moveLeft(vel + 1);
+        else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() > enemyCurrentXPos)
+            enemy.moveRight(vel + 1);
+        else if (enemyCurrentXPos <= range + enemyBeginningPos && enemyIsMovingRight)
             enemy.moveRight(vel);
-        else if (currentPos <= beginningPos && !movingRight)
+        else if (enemyCurrentXPos <= enemyBeginningPos && !enemyIsMovingRight)
             enemy.setMovingRight(true);
         else {
             enemy.setMovingRight(false);
             enemy.moveLeft(vel);
         }
     }
+
+//    public void handleEnemiesMoving(Enemy enemy, int vel){
+//        int beginningPos = enemy.getBeginningXPosition();
+//        int currentPos = enemy.getX();
+//        int range = enemy.getRange();
+//        boolean movingRight = enemy.isMovingRight();
+//        if (currentPos <= range + beginningPos && movingRight)
+//            enemy.moveRight(vel);
+//        else if (currentPos <= beginningPos && !movingRight)
+//            enemy.setMovingRight(true);
+//        else {
+//            enemy.setMovingRight(false);
+//            enemy.moveLeft(vel);
+//        }
+//    }
 
     public void restoreHearts() {
         for (Heart heart : this.hearts)
@@ -450,7 +471,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.player.setY(0);
                     this.offsetX = 0;
                     this.player = new Player(330, 100, 32, 32);
-                    this.enemy = new Enemy(350, 100, 32 ,32, 100);
+                    this.enemy = new Enemy(350, 100, 32, 32, 100);
                     this.characters.add(this.player);
                     this.characters.add(this.enemy);
                     restoreHearts();
