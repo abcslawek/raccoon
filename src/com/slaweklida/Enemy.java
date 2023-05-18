@@ -4,6 +4,7 @@ public class Enemy extends Player{
 
     private int range;
     private int beginningXPosition;
+    private boolean isMovingRight = true;
 
     public Enemy(int x, int y, int width, int height, int range) {
         super(x, y, width, height);
@@ -19,4 +20,11 @@ public class Enemy extends Player{
         return beginningXPosition;
     }
 
+    public boolean isMovingRight() {
+        return isMovingRight;
+    }
+
+    public void setMovingRight(boolean movingRight) {
+        isMovingRight = movingRight;
+    }
 }

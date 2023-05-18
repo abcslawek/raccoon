@@ -193,6 +193,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleFlyingBlockMoving(this.blocks);
         handleAttack(this.enemy);
         handleEnemiesDying(this.enemy);
+        handleEnemiesMoving(this.enemy, 1);
 
         this.player.loop(60);
         this.enemy.loop(60);
@@ -331,8 +332,19 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    public void handleEnemiesMoving(Enemy enemy){
-        enemy.moveRight(3);
+    public void handleEnemiesMoving(Enemy enemy, int vel){
+        int beginningPos = enemy.getBeginningXPosition();
+        int currentPos = enemy.getX();
+        int range = enemy.getRange();
+        boolean movingRight = enemy.isMovingRight();
+        if (currentPos <= range + beginningPos && movingRight)
+            enemy.moveRight(vel);
+        else if (currentPos <= beginningPos && !movingRight)
+            enemy.setMovingRight(true);
+        else {
+            enemy.setMovingRight(false);
+            enemy.moveLeft(vel);
+        }
     }
 
     public void restoreHearts() {
