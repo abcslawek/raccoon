@@ -72,7 +72,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.timer = new Timer(23, this); //17
         this.timer.start();
         this.player = new Player(330, 100, 32, 32);
-        this.enemy = new Enemy(360, 100, 32, 32);
+        this.enemy = new Enemy(1900, 100, 32, 32, 100);
         this.blocks = new ArrayList<>();
         this.collidedBlocks = new ArrayList<>();
         this.hearts = new ArrayList<>();
@@ -110,7 +110,11 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.blocks.add(new SolidBlock(1600, 250, 100, 100, "blockImage"));
         this.blocks.add(new SolidBlock(1700, 250, 100, 100, "blockImage"));
         this.blocks.add(new SolidBlock(1800, 250, 100, 100, "blockImage"));
-        this.blocks.add(new EndBlock(1800, 150, 100, 100, "houseImage"));
+        this.blocks.add(new SolidBlock(1900, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(2000, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(2100, 250, 100, 100, "blockImage"));
+        this.blocks.add(new SolidBlock(2200, 250, 100, 100, "blockImage"));
+        this.blocks.add(new EndBlock(2200, 150, 100, 100, "houseImage"));
         this.blocks.add(new FlyingBlock(1150, 50, 60, 20, 3, 180, "flyingBlockImage"));
     }
 
@@ -323,10 +327,12 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     public void handleEnemiesDying(Enemy enemy) {
         if (enemy.getLifes() == 0 && !this.hasEnemyBeenKilled) {
             enemy.death();
-            //if(!enemy.isOneTimeAnimationPlaying()) this.enemy.move(0, 1000);
-            //characters.add(this.enemy);
             this.hasEnemyBeenKilled = true;
         }
+    }
+
+    public void handleEnemiesMoving(Enemy enemy){
+        enemy.moveRight(3);
     }
 
     public void restoreHearts() {
@@ -432,7 +438,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.player.setY(0);
                     this.offsetX = 0;
                     this.player = new Player(330, 100, 32, 32);
+                    this.enemy = new Enemy(350, 100, 32 ,32, 100);
                     this.characters.add(this.player);
+                    this.characters.add(this.enemy);
                     restoreHearts();
                     this.gameOver = false;
                     this.win = false;
