@@ -313,7 +313,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.hasEnemyBeenHit = true;
                     enemy.playOneTimeAnimation("hurt.png");
                 }
-
             }
         } else this.hasEnemyBeenHit = false;
     }
@@ -337,12 +336,15 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         int enemyCurrentXPos = enemy.getX();
         int range = enemy.getRange();
         boolean enemyIsMovingRight = enemy.isMovingRight();
-        if(enemyCurrentXPos == player.getX() || enemyCurrentXPos == player.getX() -1)
-            enemy.setXVel(0);
-        else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() < enemyCurrentXPos)
-            enemy.moveLeft(vel + 1);
+        if(enemyCurrentXPos >= player.getX() - enemy.getAttackRange() + 1 && enemyCurrentXPos <= player.getX() + enemy.getAttackRange() - 1) {
+            enemy.setXVel(0); //wróg zatrzymuje się
+            if(player.getX() > enemyCurrentXPos) enemy.setDirection("right"); //wróg obraca się w stronę gracza gdy jest przy nim
+            else enemy.setDirection("left"); //wróg obraca się w stronę gracza gdy jest przy nim
+            if(!enemy.isAttacking()) enemy.attack(); //wróg wykonuje atak
+        } else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() < enemyCurrentXPos)
+            enemy.moveLeft(vel + 1); //wróg podąża za graczem w lewo gdy gracz jest w zasięgu wzroku
         else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() > enemyCurrentXPos)
-            enemy.moveRight(vel + 1);
+            enemy.moveRight(vel + 1); //wróg podąża za graczem w prawo gdy gracz jest w zasięgu wzroku
         else if (enemyCurrentXPos <= range + enemyBeginningPos && enemyIsMovingRight)
             enemy.moveRight(vel);
         else if (enemyCurrentXPos <= enemyBeginningPos && !enemyIsMovingRight)
@@ -352,21 +354,6 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             enemy.moveLeft(vel);
         }
     }
-
-//    public void handleEnemiesMoving(Enemy enemy, int vel){
-//        int beginningPos = enemy.getBeginningXPosition();
-//        int currentPos = enemy.getX();
-//        int range = enemy.getRange();
-//        boolean movingRight = enemy.isMovingRight();
-//        if (currentPos <= range + beginningPos && movingRight)
-//            enemy.moveRight(vel);
-//        else if (currentPos <= beginningPos && !movingRight)
-//            enemy.setMovingRight(true);
-//        else {
-//            enemy.setMovingRight(false);
-//            enemy.moveLeft(vel);
-//        }
-//    }
 
     public void restoreHearts() {
         for (Heart heart : this.hearts)
@@ -471,7 +458,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.player.setY(0);
                     this.offsetX = 0;
                     this.player = new Player(330, 100, 32, 32);
-                    this.enemy = new Enemy(350, 100, 32, 32, 100);
+                    this.enemy = new Enemy(1900, 100, 32, 32, 100);
                     this.characters.add(this.player);
                     this.characters.add(this.enemy);
                     restoreHearts();

@@ -30,6 +30,7 @@ public class Player {
     private BufferedImage[] sprites;
     private BufferedImage sprite;
     private boolean oneTimeAnimationPlaying = false;
+    private boolean isAttacking = false;
 
     public Player(int x, int y, int width, int height) {
         this.x = x;
@@ -103,6 +104,7 @@ public class Player {
         if (this.oneTimeAnimationPlaying) {
             if (this.oneTimeAnimationCount >= this.sprites.length * this.animationDelay) {
                 this.oneTimeAnimationPlaying = false;
+                if(this.spriteSheet.equals("attack.png")) this.isAttacking = false;
                 if(this.spriteSheet.equals("death.png")) this.move(0, 1000); //po skończonej animacji teleportuje wroga w kosmos
             } else {
                 this.spriteIndex = (this.oneTimeAnimationCount / (this.animationDelay)) % this.sprites.length;
@@ -127,6 +129,7 @@ public class Player {
 
     public void attack(){
         playOneTimeAnimation("attack.png");
+        this.isAttacking = true;
     }
 
     public void death(){
@@ -246,5 +249,17 @@ public class Player {
 
     public boolean isOneTimeAnimationPlaying() {
         return oneTimeAnimationPlaying;
+    }
+
+    public boolean isAttacking() {
+        return isAttacking;
+    }
+
+    public void setAttacking(boolean attacking) {
+        isAttacking = attacking;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
     }
 }

@@ -27,4 +27,6 @@ public class Enemy extends Player{
     public void setMovingRight(boolean movingRight) {
         isMovingRight = movingRight;
     }
+
+
 }
