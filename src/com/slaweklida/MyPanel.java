@@ -39,6 +39,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private boolean gameOver = false;
     private boolean win = false;
     private boolean hasEnemyBeenHit = false;
+    private boolean hasEnemyBeenKilled = false;
 
 
     //obsługa przerwań z klawiatury
@@ -161,11 +162,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         g2D.setFont(new Font("Calibri", Font.BOLD, 13));
         g2D.drawString("Sprite sheet: " + this.player.getSpriteSheet(), 10, 50);
         g2D.drawString("One time animation count: " + this.player.getOneTimeAnimationCount(), 10, 60);
-        g2D.drawString("Enemy X: " + this.enemy.getX(), 10, 70);
-        g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 80);
-        g2D.drawString("X: " + this.player.getX(), 10, 90);
-        g2D.drawString("Y: " + this.player.getY(), 10, 100);
-        g2D.drawString("Enemy health " + this.enemy.getLifes(), 10, 110);
+        g2D.drawString("X: " + this.player.getX(), 10, 70);
+        g2D.drawString("Y: " + this.player.getY(), 10, 80);
+        g2D.drawString("Enemy X: " + this.enemy.getX(), 10, 90);
+        g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 100);
+        g2D.drawString("Enemy health: " + this.enemy.getLifes(), 10, 110);
+        g2D.drawString("Enemy sprite sheet: " + this.enemy.getSpriteSheet(), 10, 120);
+        g2D.drawString("Enemy one time animation count: " + this.enemy.getOneTimeAnimationCount(), 10, 130);
+
     }
 
     @Override
@@ -184,8 +188,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleGameOver();
         handleFlyingBlockMoving(this.blocks);
         handleAttack(this.enemy);
+        handleEnemiesDying(this.enemy);
 
-        this.player.loop(60); //jeśli isRunning to może się wykonać tylko raz
+        this.player.loop(60);
         this.enemy.loop(60);
         repaint(); //narysowanie nowej klatki
     }
@@ -229,7 +234,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
 
     public void handleVerticalCollision() {
         this.collidedBlocks.clear();
-        for(Player character : this.characters) {
+        for (Player character : this.characters) {
             for (Block block : this.blocks) {
                 if (isPlayerColliding(character, block)) {
 
@@ -283,28 +288,44 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    public void handleAttack(Enemy enemy){
-        if(this.player.getSpriteSheet().equals("attack.png")){
-            if(this.player.getX() < enemy.getX() && enemy.getX() < (this.player.getX() + this.player.getAttackRange())
+    public void handleAttack(Enemy enemy) {
+        if (this.player.getSpriteSheet().equals("attack.png")) {
+            if (this.player.getX() < enemy.getX() && enemy.getX() < (this.player.getX() + this.player.getAttackRange())
                     && this.player.getDirection().equals("right")
-                    && this.player.getY() == enemy.getY()){
-                if(!hasEnemyBeenHit) enemy.looseLife();
-                this.hasEnemyBeenHit = true;
-                enemy.playOneTimeAnimation("hurt.png");
-            }else if((this.player.getX() - this.player.getAttackRange()) < enemy.getX() && enemy.getX() < this.player.getX()
+                    && this.player.getY() == enemy.getY()
+                    && !this.hasEnemyBeenKilled) {
+                if (!hasEnemyBeenHit) {
+                    enemy.looseLife();
+                    this.hasEnemyBeenHit = true;
+                    enemy.playOneTimeAnimation("hurt.png");
+                }
+            } else if ((this.player.getX() - this.player.getAttackRange()) < enemy.getX() && enemy.getX() < this.player.getX()
                     && this.player.getDirection().equals("left")
-                    && this.player.getY() == enemy.getY()){
-                if(!hasEnemyBeenHit) enemy.looseLife();
-                this.hasEnemyBeenHit = true;
-                enemy.playOneTimeAnimation("hurt.png");
+                    && this.player.getY() == enemy.getY()
+                    && !this.hasEnemyBeenKilled) {
+                if (!hasEnemyBeenHit) {
+                    enemy.looseLife();
+                    this.hasEnemyBeenHit = true;
+                    enemy.playOneTimeAnimation("hurt.png");
+                }
+
             }
-        }else this.hasEnemyBeenHit = false;
+        } else this.hasEnemyBeenHit = false;
     }
 
     public void handleGameOver() {
         if (this.player.getLifes() == 0) {
             playSound("gameOver");
             this.gameOver = true;
+        }
+    }
+
+    public void handleEnemiesDying(Enemy enemy) {
+        if (enemy.getLifes() == 0 && !this.hasEnemyBeenKilled) {
+            enemy.death();
+            //if(!enemy.isOneTimeAnimationPlaying()) this.enemy.move(0, 1000);
+            //characters.add(this.enemy);
+            this.hasEnemyBeenKilled = true;
         }
     }
 
@@ -331,7 +352,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     }
                 }
             }
-        }catch (ConcurrentModificationException e){
+        } catch (ConcurrentModificationException e) {
         }
     }
 
@@ -418,8 +439,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 }
                 break;
             case 't':
-                    this.player.attack();
-                    break;
+                this.player.attack();
+                break;
+            case 'e':
+                this.enemy.death();
+                break;
+            case 'y':
+                this.enemy.playOneTimeAnimation("hurt.png");
+                break;
             case 32:
                 this.player.move(0, -1); // -1 usuwa buga i można skakać
                 this.player.jump();

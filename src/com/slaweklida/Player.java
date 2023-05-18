@@ -103,6 +103,7 @@ public class Player {
         if (this.oneTimeAnimationPlaying) {
             if (this.oneTimeAnimationCount >= this.sprites.length * this.animationDelay) {
                 this.oneTimeAnimationPlaying = false;
+                if(this.spriteSheet.equals("death.png")) this.move(0, 1000); //po skończonej animacji teleportuje wroga w kosmos
             } else {
                 this.spriteIndex = (this.oneTimeAnimationCount / (this.animationDelay)) % this.sprites.length;
                 this.sprite = this.sprites[this.spriteIndex];
@@ -126,7 +127,10 @@ public class Player {
 
     public void attack(){
         playOneTimeAnimation("attack.png");
+    }
 
+    public void death(){
+        playOneTimeAnimation("death.png");
     }
 
     public void landed() {
@@ -236,15 +240,11 @@ public class Player {
         return maskHeight;
     }
 
-    public boolean isOneTimeAnimationPlaying() {
-        return oneTimeAnimationPlaying;
-    }
-
-    public void setOneTimeAnimationPlaying(boolean oneTimeAnimationPlaying) {
-        this.oneTimeAnimationPlaying = oneTimeAnimationPlaying;
-    }
-
     public int getAttackRange() {
         return attackRange;
+    }
+
+    public boolean isOneTimeAnimationPlaying() {
+        return oneTimeAnimationPlaying;
     }
 }
