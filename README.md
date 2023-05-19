@@ -15,7 +15,7 @@ I recreated a project of a platform game presented on the youtube channel "Tech 
 
 
 ## General Information
-- Raccoon is a game created in Java, it uses a swing collection, you can run, jump, doublejump, fall down, lose life and loose or win the game!
+- Raccoon is a game created in Java, it uses a swing collection, you can run, jump, doublejump, fall down, fight against enemy, lose life and loose or win the game!
 
 
 ## Technologies Used
@@ -25,7 +25,9 @@ I recreated a project of a platform game presented on the youtube channel "Tech 
 ## Features that already exist
 - Running left and right
 - Falling down
-- Animation of idle, running and jumping
+- Animations of idle, running and jumping etc.
+- Fighting with enemy
+- Moving on flying block
 - Death takes your one life (one heart)
 - Winning or losing a game
 - Instruction image
@@ -35,21 +37,21 @@ I recreated a project of a platform game presented on the youtube channel "Tech 
 
 
 ## Screenshots
-![raccoonFinalRecorded](https://user-images.githubusercontent.com/56951671/233637054-92c3a41f-56ff-4c9b-9536-c0ca84684c00.gif)
+![raccoon-min](https://github.com/abcslawek/raccoon/assets/56951671/0d9cb09c-16bf-47e2-ad94-e13be1cf60cb)
+
 
 ## Usage
-In order to complete the game you need to be a bit dexterous and use running and jumping to get to your house which is at the end of the map.
+In order to complete the game you need to be a bit dexterous and use running, jumping. You have to beat the enemy to get to your house which is at the end of the map.
 
 ## Project Status
 Project is complete. Optionally, in the future, new features can be added.
 
 ## Room for Improvement
 Optionall new features to do:
-- Attacking enemies
 - New levels
 - Washing food
 - Character upgrades
-- Moving environment's object
+- Moving environment's objects
 - Different difficult levels
 
 
