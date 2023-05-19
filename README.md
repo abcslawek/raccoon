@@ -1,6 +1,7 @@
 # Raccoon
 It's a platform game with Raccoon adventures written in Java.
-I recreated a project of a platform game presented on the youtube channel "Tech With Tim" written in Python with the Pygame library.
+I recreated a project of a platform game presented on the youtube channel "Tech With Tim" written in Python with the Pygame library. 
+I added my own features like moving on flying block or fighting against an enemy.
 
 
 ## Table of Contents
