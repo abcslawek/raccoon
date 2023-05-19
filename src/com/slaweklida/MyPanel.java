@@ -74,7 +74,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.timer = new Timer(23, this); //17
         this.timer.start();
         this.player = new Player(330, 100, 32, 32);
-        this.enemy = new Enemy(100, 100, 32, 32, 10); //1900 //range 100
+        this.enemy = new Enemy(1900, 100, 32, 32, 100); //1900 //range 100
         this.blocks = new ArrayList<>();
         this.collidedBlocks = new ArrayList<>();
         this.hearts = new ArrayList<>();
@@ -166,18 +166,18 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         //parametry
         g2D.setPaint(new Color(153, 0, 255));
         g2D.setFont(new Font("Calibri", Font.BOLD, 13));
-        g2D.drawString("Sprite sheet: " + this.player.getSpriteSheet(), 10, 50);
-        g2D.drawString("One time animation count: " + this.player.getOneTimeAnimationCount(), 10, 60);
-        g2D.drawString("X: " + this.player.getX(), 10, 70);
-        g2D.drawString("Y: " + this.player.getY(), 10, 80);
-        g2D.drawString("Health: " + this.player.getLifes(), 10, 90);
-        g2D.drawString("Enemy X: " + this.enemy.getX(), 10, 100);
-        g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 110);
-        g2D.drawString("Enemy health: " + this.enemy.getLifes(), 10, 120);
-        g2D.drawString("Enemy sprite sheet: " + this.enemy.getSpriteSheet(), 10, 130);
-        g2D.drawString("Enemy one time animation count: " + this.enemy.getOneTimeAnimationCount(), 10, 140);
-        g2D.drawString("Is one time animation enemy playing: " + this.enemy.isOneTimeAnimationPlaying(), 10, 150);
-        g2D.drawString("Delay counter: " + this.delayCounter, 10, 160);
+//        g2D.drawString("Sprite sheet: " + this.player.getSpriteSheet(), 10, 50);
+//        g2D.drawString("One time animation count: " + this.player.getOneTimeAnimationCount(), 10, 60);
+//        g2D.drawString("X: " + this.player.getX(), 10, 70);
+//        g2D.drawString("Y: " + this.player.getY(), 10, 80);
+//        g2D.drawString("Health: " + this.player.getLifes(), 10, 90);
+//        g2D.drawString("Enemy X: " + this.enemy.getX(), 10, 100);
+//        g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 110);
+//        g2D.drawString("Enemy health: " + this.enemy.getLifes(), 10, 120);
+//        g2D.drawString("Enemy sprite sheet: " + this.enemy.getSpriteSheet(), 10, 130);
+//        g2D.drawString("Enemy one time animation count: " + this.enemy.getOneTimeAnimationCount(), 10, 140);
+//        g2D.drawString("Is one time animation enemy playing: " + this.enemy.isOneTimeAnimationPlaying(), 10, 150);
+//        g2D.drawString("Delay counter: " + this.delayCounter, 10, 160);
 
     }
 
@@ -197,7 +197,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleGameOver();
         handleFlyingBlockMoving(this.blocks);
         handleAttack(this.player, this.enemy);
-        handleEnemyAttack(enemy, this.player, 30);
+        handleEnemyAttack(enemy, this.player);
         handleEnemiesDying(this.enemy);
         handleEnemiesMoving(this.player, this.enemy, 1, 100, 30);
 
@@ -316,13 +316,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         } else this.hasEnemyBeenHit = false;
     }
 
-    public void handleEnemyAttack(Enemy enemy, Player player, int delay) {
+    public void handleEnemyAttack(Enemy enemy, Player player) {
         if (enemy.getSpriteSheet().equals("attack.png")) {
             if (((enemy.getX() < player.getX() && player.getX() < (enemy.getX() + enemy.getAttackRange()) && enemy.getDirection().equals("right")) ||
                     ((enemy.getX() - enemy.getAttackRange()) < player.getX() && player.getX() < enemy.getX() && enemy.getDirection().equals("left")))
                     && enemy.getY() == player.getY()
                     && !this.hasPlayerBeenKilled) {
                 if (!this.hasPlayerBeenHit) {
+                    player.playOneTimeAnimation("hurt.png");
                     player.looseLife();
                     try {
                         this.hearts.get(this.player.getLifes()).looseHealth(); //ostatnie na liście serce pustoszeje
@@ -341,6 +342,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
             this.hasPlayerBeenKilled = true;
             playSound("gameOver");
             this.gameOver = true;
+            this.enemy.setSpriteSheet("idle.png"); //gdy wróg zabije gracza to stoi
         }
     }
 
@@ -362,14 +364,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 enemy.setDirection("right"); //wróg obraca się w stronę gracza gdy jest przy nim
             else enemy.setDirection("left"); //wróg obraca się w stronę gracza gdy jest przy nim
 
-            if (!enemy.isAttacking()) {
-                enemy.attack(); //wróg wykonuje atak
-            }
-
-//            if (!enemy.isAttacking() && this.delayCounter == delay) {
+//            if (!enemy.isAttacking()) {
 //                enemy.attack(); //wróg wykonuje atak
-//                this.delayCounter = 0;
-//            } else this.delayCounter ++;
+//            }
+
+            if (!enemy.isAttacking() && this.delayCounter == delay) {
+                enemy.attack(); //wróg wykonuje atak
+                this.delayCounter = 0;
+            } else this.delayCounter ++;
 
         } else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() < enemyCurrentXPos)
             enemy.moveLeft(vel + 1); //wróg podąża za graczem w lewo gdy gracz jest w zasięgu wzroku
@@ -488,7 +490,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.player.setY(0);
                     this.offsetX = 0;
                     this.player = new Player(330, 100, 32, 32);
-                    this.enemy = new Enemy(100, 100, 32, 32, 10); //1900
+                    this.enemy = new Enemy(1900, 100, 32, 32, 100); //1900
                     this.hasPlayerBeenKilled = false;
                     this.hasEnemyBeenKilled = false;
                     this.characters.add(this.player);
@@ -496,6 +498,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     restoreHearts();
                     this.gameOver = false;
                     this.win = false;
+                    this.delayCounter = 0;
                 }
                 break;
             case 't':

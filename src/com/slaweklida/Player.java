@@ -106,7 +106,6 @@ public class Player {
                 this.oneTimeAnimationPlaying = false;
                 if(this.spriteSheet.equals("attack.png")) {
                     this.isAttacking = false;
-                    //this.spriteSheet = "idle.png"; //reset ataku
                     this.playOneTimeAnimation("idle.png");
                 }
                 if(this.spriteSheet.equals("death.png")) this.move(0, 1000); //po skończonej animacji teleportuje wroga w kosmos
