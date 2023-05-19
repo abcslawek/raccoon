@@ -104,7 +104,11 @@ public class Player {
         if (this.oneTimeAnimationPlaying) {
             if (this.oneTimeAnimationCount >= this.sprites.length * this.animationDelay) {
                 this.oneTimeAnimationPlaying = false;
-                if(this.spriteSheet.equals("attack.png")) this.isAttacking = false;
+                if(this.spriteSheet.equals("attack.png")) {
+                    this.isAttacking = false;
+                    //this.spriteSheet = "idle.png"; //reset ataku
+                    this.playOneTimeAnimation("idle.png");
+                }
                 if(this.spriteSheet.equals("death.png")) this.move(0, 1000); //po skończonej animacji teleportuje wroga w kosmos
             } else {
                 this.spriteIndex = (this.oneTimeAnimationCount / (this.animationDelay)) % this.sprites.length;
@@ -261,5 +265,9 @@ public class Player {
 
     public void setDirection(String direction) {
         this.direction = direction;
+    }
+
+    public void setSpriteSheet(String spriteSheet) {
+        this.spriteSheet = spriteSheet;
     }
 }

@@ -40,7 +40,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
     private boolean win = false;
     private boolean hasEnemyBeenHit = false;
     private boolean hasEnemyBeenKilled = false;
-
+    private boolean hasPlayerBeenHit = false;
+    private boolean hasPlayerBeenKilled = false;
+    private int delayCounter;
 
     //obsługa przerwań z klawiatury
     private boolean aKeyPressed = false;
@@ -72,7 +74,7 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         this.timer = new Timer(23, this); //17
         this.timer.start();
         this.player = new Player(330, 100, 32, 32);
-        this.enemy = new Enemy(1900, 100, 32, 32, 100);
+        this.enemy = new Enemy(100, 100, 32, 32, 10); //1900 //range 100
         this.blocks = new ArrayList<>();
         this.collidedBlocks = new ArrayList<>();
         this.hearts = new ArrayList<>();
@@ -168,11 +170,14 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         g2D.drawString("One time animation count: " + this.player.getOneTimeAnimationCount(), 10, 60);
         g2D.drawString("X: " + this.player.getX(), 10, 70);
         g2D.drawString("Y: " + this.player.getY(), 10, 80);
-        g2D.drawString("Enemy X: " + this.enemy.getX(), 10, 90);
-        g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 100);
-        g2D.drawString("Enemy health: " + this.enemy.getLifes(), 10, 110);
-        g2D.drawString("Enemy sprite sheet: " + this.enemy.getSpriteSheet(), 10, 120);
-        g2D.drawString("Enemy one time animation count: " + this.enemy.getOneTimeAnimationCount(), 10, 130);
+        g2D.drawString("Health: " + this.player.getLifes(), 10, 90);
+        g2D.drawString("Enemy X: " + this.enemy.getX(), 10, 100);
+        g2D.drawString("Enemy Y: " + this.enemy.getY(), 10, 110);
+        g2D.drawString("Enemy health: " + this.enemy.getLifes(), 10, 120);
+        g2D.drawString("Enemy sprite sheet: " + this.enemy.getSpriteSheet(), 10, 130);
+        g2D.drawString("Enemy one time animation count: " + this.enemy.getOneTimeAnimationCount(), 10, 140);
+        g2D.drawString("Is one time animation enemy playing: " + this.enemy.isOneTimeAnimationPlaying(), 10, 150);
+        g2D.drawString("Delay counter: " + this.delayCounter, 10, 160);
 
     }
 
@@ -191,9 +196,10 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         handleRespawn(330, 100);
         handleGameOver();
         handleFlyingBlockMoving(this.blocks);
-        handleAttack(this.enemy);
+        handleAttack(this.player, this.enemy);
+        handleEnemyAttack(enemy, this.player, 30);
         handleEnemiesDying(this.enemy);
-        handleEnemiesMoving(this.player, this.enemy, 1, 100);
+        handleEnemiesMoving(this.player, this.enemy, 1, 100, 30);
 
         this.player.loop(60);
         this.enemy.loop(60);
@@ -293,32 +299,46 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    public void handleAttack(Enemy enemy) {
-        if (this.player.getSpriteSheet().equals("attack.png")) {
-            if (this.player.getX() < enemy.getX() && enemy.getX() < (this.player.getX() + this.player.getAttackRange())
-                    && this.player.getDirection().equals("right")
-                    && this.player.getY() == enemy.getY()
+
+    public void handleAttack(Player player, Enemy enemy) {
+        if (player.getSpriteSheet().equals("attack.png")) {
+            if (((player.getX() < enemy.getX() && enemy.getX() < (player.getX() + player.getAttackRange()) && player.getDirection().equals("right")) ||
+                    ((player.getX() - player.getAttackRange()) < enemy.getX() && enemy.getX() < player.getX() && player.getDirection().equals("left")))
+                    && player.getY() == enemy.getY()
                     && !this.hasEnemyBeenKilled) {
-                if (!hasEnemyBeenHit) {
+                if (!this.hasEnemyBeenHit) {
                     enemy.looseLife();
                     this.hasEnemyBeenHit = true;
                     enemy.playOneTimeAnimation("hurt.png");
-                }
-            } else if ((this.player.getX() - this.player.getAttackRange()) < enemy.getX() && enemy.getX() < this.player.getX()
-                    && this.player.getDirection().equals("left")
-                    && this.player.getY() == enemy.getY()
-                    && !this.hasEnemyBeenKilled) {
-                if (!hasEnemyBeenHit) {
-                    enemy.looseLife();
-                    this.hasEnemyBeenHit = true;
-                    enemy.playOneTimeAnimation("hurt.png");
+
                 }
             }
         } else this.hasEnemyBeenHit = false;
     }
 
+    public void handleEnemyAttack(Enemy enemy, Player player, int delay) {
+        if (enemy.getSpriteSheet().equals("attack.png")) {
+            if (((enemy.getX() < player.getX() && player.getX() < (enemy.getX() + enemy.getAttackRange()) && enemy.getDirection().equals("right")) ||
+                    ((enemy.getX() - enemy.getAttackRange()) < player.getX() && player.getX() < enemy.getX() && enemy.getDirection().equals("left")))
+                    && enemy.getY() == player.getY()
+                    && !this.hasPlayerBeenKilled) {
+                if (!this.hasPlayerBeenHit) {
+                    player.looseLife();
+                    try {
+                        this.hearts.get(this.player.getLifes()).looseHealth(); //ostatnie na liście serce pustoszeje
+                    } catch (IndexOutOfBoundsException e) {
+                    }
+                    this.hasPlayerBeenHit = true;
+                }
+            }
+        } else this.hasPlayerBeenHit = false;
+
+    }
+
     public void handleGameOver() {
-        if (this.player.getLifes() == 0) {
+        if (this.player.getLifes() == 0 && !this.hasPlayerBeenKilled) {
+            this.player.death();
+            this.hasPlayerBeenKilled = true;
             playSound("gameOver");
             this.gameOver = true;
         }
@@ -331,16 +351,26 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    public void handleEnemiesMoving(Player player, Enemy enemy, int vel, int chasingRange) {
+    public void handleEnemiesMoving(Player player, Enemy enemy, int vel, int chasingRange, int delay) {
         int enemyBeginningPos = enemy.getBeginningXPosition();
         int enemyCurrentXPos = enemy.getX();
         int range = enemy.getRange();
         boolean enemyIsMovingRight = enemy.isMovingRight();
-        if(enemyCurrentXPos >= player.getX() - enemy.getAttackRange() + 1 && enemyCurrentXPos <= player.getX() + enemy.getAttackRange() - 1) {
+        if (enemyCurrentXPos >= player.getX() - enemy.getAttackRange() + 1 && enemyCurrentXPos <= player.getX() + enemy.getAttackRange() - 1) {
             enemy.setXVel(0); //wróg zatrzymuje się
-            if(player.getX() > enemyCurrentXPos) enemy.setDirection("right"); //wróg obraca się w stronę gracza gdy jest przy nim
+            if (player.getX() > enemyCurrentXPos)
+                enemy.setDirection("right"); //wróg obraca się w stronę gracza gdy jest przy nim
             else enemy.setDirection("left"); //wróg obraca się w stronę gracza gdy jest przy nim
-            if(!enemy.isAttacking()) enemy.attack(); //wróg wykonuje atak
+
+            if (!enemy.isAttacking()) {
+                enemy.attack(); //wróg wykonuje atak
+            }
+
+//            if (!enemy.isAttacking() && this.delayCounter == delay) {
+//                enemy.attack(); //wróg wykonuje atak
+//                this.delayCounter = 0;
+//            } else this.delayCounter ++;
+
         } else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() < enemyCurrentXPos)
             enemy.moveLeft(vel + 1); //wróg podąża za graczem w lewo gdy gracz jest w zasięgu wzroku
         else if (Math.abs(player.getX() - enemy.getX()) < chasingRange && player.getX() > enemyCurrentXPos)
@@ -458,7 +488,9 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                     this.player.setY(0);
                     this.offsetX = 0;
                     this.player = new Player(330, 100, 32, 32);
-                    this.enemy = new Enemy(1900, 100, 32, 32, 100);
+                    this.enemy = new Enemy(100, 100, 32, 32, 10); //1900
+                    this.hasPlayerBeenKilled = false;
+                    this.hasEnemyBeenKilled = false;
                     this.characters.add(this.player);
                     this.characters.add(this.enemy);
                     restoreHearts();
@@ -467,7 +499,8 @@ public class MyPanel extends JPanel implements ActionListener, KeyListener {
                 }
                 break;
             case 't':
-                this.player.attack();
+                if (!this.hasPlayerBeenKilled)
+                    this.player.attack();
                 break;
             case 'e':
                 this.enemy.death();
